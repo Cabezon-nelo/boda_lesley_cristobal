@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrimonio Lesley & Cristóbal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- ESTILOS GLOBALES --- */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #fcfbf9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-image: radial-gradient(rgba(205, 164, 52, 0.03) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+        h1, h2, h3 { margin: 0; }
+        a { text-decoration: none; color: inherit; }
+
+        /* --- NAVEGACIÓN CENTRADA --- */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(253, 252, 250, 0.95);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid #eae6dc;
+            z-index: 1000;
+            display: flex;
+            justify-content: center; /* Centra los elementos como en tu imagen */
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .nav-links a {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #8a8273;
+            transition: all 0.3s;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .nav-links a:hover {
+            color: #bfa15f;
+        }
+        .nav-links a.active-link {
+            color: #bfa15f;
+            font-weight: 600;
+        }
+
+        /* --- SECCIONES COMO PÁGINAS INDIVIDUALES --- */
+        .page-section {
+            display: none; /* Oculta todas las páginas por defecto */
+            padding: 120px 20px 60px 20px; /* Espacio para el menú superior */
+            min-height: calc(100vh - 180px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page-section.active {
+            display: flex; /* Solo muestra la página activa */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            color: #222;
+            margin-bottom: 30px;
+        }
+
+        /* --- ELEMENTOS VISUALES --- */
+        .hero-names {
+            font-family: 'Great Vibes', cursive;
+            color: #bfa15f;
+            font-size: 85px; 
+            line-height: 1; /* Lo ajustamos a 1 para tener mejor control */
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .hero-names .ampersand {
+            font-size: 45px; 
+            margin-top: -25px;    /* Sube la "y" para acercarla a Lesley */
+            margin-bottom: 5px;   /* Da espacio extra antes de Cristóbal */
+        }
+        .hero-date {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            border-top: 1px solid #d1c9b8;
+            border-bottom: 1px solid #d1c9b8;
+            padding: 15px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+        .details-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+            max-width: 500px;
+            margin-bottom: 25px;
+        }
+        .btn-primary {
+            display: inline-block; background-color: #2c2924; color: #fff;
+            padding: 12px 25px; font-size: 12px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 2px; border-radius: 2px; transition: background-color 0.3s;
+            border: none; cursor: pointer;
+        }
+        .btn-primary:hover { background-color: #bfa15f; }
+        
+        .gift-box {
+            border-left: 3px solid #bfa15f; padding: 20px 30px; text-align: left;
+            max-width: 600px; background-color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            margin-bottom: 30px;
+        }
+        .gift-intro { font-style: italic; font-size: 14px; color: #444; line-height: 1.6; margin-bottom: 25px; }
+        .bank-details p { margin: 8px 0; font-size: 14px; color: #222; }
+        
+        .card-proximamente {
+            border: 1px dashed #bfa15f; padding: 40px; background-color: #fcfaf5; border-radius: 4px;
+        }
+        .icon-large { font-size: 40px; margin-bottom: 15px; }
+
+        /* --- ESTILOS DEL FORMULARIO --- */
+        .form-container {
+            background-color: #fff; padding: 50px 40px; border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-width: 550px; width: 100%;
+            border: 1px solid #eae6dc; text-align: left;
+        }
+        .form-group { margin-bottom: 25px; }
+        label {
+            display: block; font-weight: 600; color: #666; margin-bottom: 10px;
+            font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        input[type="text"] {
+            width: 100%; padding: 12px; border: 1px solid #dcd7cc; border-radius: 2px;
+            font-size: 15px; box-sizing: border-box; font-family: 'Montserrat', sans-serif;
+            background-color: #faf9f6;
+        }
+        input[type="text"]:focus { outline: none; border-color: #bfa15f; background-color: #fff; }
+        .radio-group { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+        .radio-item { display: flex; align-items: center; font-size: 14px; color: #444; cursor: pointer; }
+        .radio-item input[type="radio"] { margin-right: 12px; transform: scale(1.1); accent-color: #bfa15f; }
+        .restriccion-input { margin-top: 10px; padding-left: 10px; border-left: 2px solid #bfa15f; }
+        .btn-secondary {
+            background-color: transparent; border: 1px dashed #bfa15f; color: #bfa15f;
+            padding: 10px 15px; font-size: 12px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; width: 100%; margin-top: 10px; cursor: pointer;
+        }
+        .hidden { display: none; }
+        .acompanante-item { background-color: #fbfbfa; padding: 20px; border: 1px solid #eae6dc; margin-bottom: 15px; position: relative; }
+        .btn-eliminar { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #cc0000; cursor: pointer; font-size: 12px; }
+
+        @media (max-width: 768px) {
+            .nav-links { gap: 12px; padding: 0 10px; }
+            .nav-links a { font-size: 11px; letter-spacing: 1px; }
+            .hero-names { font-size: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVEGACIÓN -->
+    <nav class="navbar">
+        <div class="nav-links">
+            <a onclick="cambiarPagina('inicio', this)" class="active-link">INICIO</a>
+            <a onclick="cambiarPagina('ubicacion', this)">UBICACIÓN</a>
+            <a onclick="cambiarPagina('regalos', this)">REGALO</a>
+            <a onclick="cambiarPagina('mesas', this)">MESAS</a>
+            <a onclick="cambiarPagina('fotos', this)">ÁLBUM</a>
+            <a onclick="cambiarPagina('asistencia', this)">ASISTENCIA</a>
+        </div>
+    </nav>
+
+    <!-- PÁGINA: INICIO -->
+    <section id="inicio" class="page-section active">
+        <div class="hero-names">
+            <span>Lesley</span>
+            <span class="ampersand">y</span>
+            <span>Cristóbal</span>
+        </div>
+        <div class="hero-date">17 . Octubre . 2026</div>
+        <p class="details-text" style="text-transform: uppercase; letter-spacing: 1px;">Tenemos el agrado de invitarte a nuestro matrimonio</p>
+    </section>
+
+    <!-- PÁGINA: UBICACIÓN -->
+    <section id="ubicacion" class="page-section">
+        <h2 class="section-title">Ceremonia y Recepción</h2>
+        <p class="details-text">
+            <strong>Sábado 17 de Octubre 2026 a las 17:30 horas</strong><br><br>
+            Centro de Eventos, Peña & Olave<br>
+            Aldea Campesina, sector El Guindo, lote 4, Talca.<br><br>
+            <em>Dress code: Formal<br>(Reserva de color: Verde Edén)</em>
+        </p>
+        <a href="https://maps.google.com/?q=Centro+de+Eventos+Peña+y+Olave+Talca" target="_blank" class="btn-primary">Ver mapa en Google Maps</a>
+    </section>
+
+    <!-- PÁGINA: REGALOS -->
+    <section id="regalos" class="page-section">
+        <h2 class="section-title">Nuestro regalo</h2>
+        <div class="gift-box">
+            <p class="gift-intro"><strong>¡Sin ti esto no sería igual!</strong> Gracias por acompañarnos en este gran paso. Tu presencia es nuestro mejor regalo, pero si deseas tener un detalle especial con nosotros, te agradecemos que nos ayudes a construir nuestro nuevo hogar y los proyectos que hoy comenzamos juntos.</p>
+            <div class="bank-details">
+                <p>Cristóbal Olmedo</p>
+                <p>17.114.715-8</p>
+                <p>Banco de Chile</p>
+                <p>Cuenta Corriente</p>
+                <p>N° 00-202-09896-06</p>
+                <p>cristobal_olmedo@hotmail.com</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PÁGINA: MESAS -->
+    <section id="mesas" class="page-section">
+        <h2 class="section-title">Encuentra tu mesa</h2>
+        <div class="card-proximamente">
+            <div class="icon-large">🍽️</div>
+            <p class="details-text">La distribución de las mesas se está organizando con mucho cariño.<br>Esta sección estará habilitada <strong>próximamente</strong>.</p>
+        </div>
+    </section>
+
+    <!-- PÁGINA: FOTOS -->
+    <section id="fotos" class="page-section">
+        <h2 class="section-title">Álbum Compartido</h2>
+        <p class="details-text">Ayúdanos a capturar cada momento mágico de nuestra boda. Sube tus fotos y videos a nuestra aplicación para que todos podamos recordarlo.</p>
+        <a href="#" class="btn-primary">Abrir Álbum de Fotos</a> 
+    </section>
+
+    <!-- PÁGINA: ASISTENCIA -->
+    <section id="asistencia" class="page-section">
+        <h2 class="section-title">Confirmar Asistencia</h2>
+        <div class="form-container">
+            <p style="text-align: center; font-size: 12px; color: #8a8273; font-style: italic; margin-bottom: 30px;">Plazo máximo de confirmación hasta el 15 de agosto 2026</p>
+
+            <form id="rsvpForm">
+                <div class="form-group">
+                    <label for="nombreInvitado">Nombre de invitado</label>
+                    <input type="text" id="nombreInvitado" name="nombreInvitado" required placeholder="Nombre y Apellido">
+                </div>
+
+                <div class="form-group">
+                    <label>¿Asistirás?</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="asistencia" value="si" required onchange="toggleDetallesTitular()"> Acepto con gusto la invitación.</label>
+                        <label class="radio-item"><input type="radio" name="asistencia" value="no" onchange="toggleDetallesTitular()"> Lamentablemente no podré asistir.</label>
+                    </div>
+                </div>
+
+                <div id="detallesTitular" class="hidden">
+                    <div class="form-group">
+                        <label>Menú</label>
+                        <div class="radio-group">
+                            <label class="radio-item"><input type="radio" name="menuTitular" value="tradicional" onchange="toggleRestriccion('Titular')"> Tradicional</label>
+                            <label class="radio-item"><input type="radio" name="menuTitular" value="vegetariano" onchange="toggleRestriccion('Titular')"> Vegetariano</label>
+                            <label class="radio-item"><input type="radio" name="menuTitular" value="restriccion" onchange="toggleRestriccion('Titular')"> Restricción alimentaria</label>
+                        </div>
+                        <div id="restriccionTitularContainer" class="restriccion-input hidden">
+                            <input type="text" id="restriccionTitular" name="restriccionTitular" placeholder="Indique qué alimentos no puede consumir">
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px dashed #d1c9b8; margin: 30px 0; padding-top: 20px;">
+                        <p style="font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; margin-bottom: 15px;">Si fuiste invitado con acompañante o familia, ingresa:</p>
+                        <div id="contenedorAcompanantes"></div>
+                        <button type="button" class="btn-secondary" onclick="agregarAcompanante()">+ Agregar acompañante / familiar</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 20px;">Enviar Confirmación</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- SCRIPTS -->
+    <script>
+        // --- LÓGICA DE NAVEGACIÓN (SIMULADOR DE PÁGINAS) ---
+        function cambiarPagina(idPagina, elementoClicado) {
+            // 1. Ocultar todas las páginas
+            document.querySelectorAll('.page-section').forEach(seccion => {
+                seccion.classList.remove('active');
+            });
+            // 2. Mostrar la página solicitada
+            document.getElementById(idPagina).classList.add('active');
+            
+            // 3. Quitar el color activo de todos los enlaces del menú
+            document.querySelectorAll('.nav-links a').forEach(enlace => {
+                enlace.classList.remove('active-link');
+            });
+            // 4. Poner color activo al enlace que se acaba de hacer clic
+            elementoClicado.classList.add('active-link');
+            
+            // 5. Volver arriba
+            window.scrollTo(0, 0);
+        }
+
+        // --- LÓGICA DEL FORMULARIO Y GOOGLE SHEETS ---
+        let contadorAcompanantes = 0;
+        
+        // ¡RECUERDA PEGAR TU URL DE APPS SCRIPT AQUÍ ADENTRO!
+        const WEB_APP_URL = "AQUI_VA_TU_URL_DE_APPS_SCRIPT";
+
+        function toggleDetallesTitular() {
+            const asistencia = document.querySelector('input[name="asistencia"]:checked').value;
+            const detallesDiv = document.getElementById('detallesTitular');
+            const menuInputs = document.querySelectorAll('input[name="menuTitular"]');
+            
+            if (asistencia === 'si') {
+                detallesDiv.classList.remove('hidden');
+                menuInputs.forEach(input => input.setAttribute('required', 'true'));
+            } else {
+                detallesDiv.classList.add('hidden');
+                menuInputs.forEach(input => input.removeAttribute('required'));
+                document.getElementById('contenedorAcompanantes').innerHTML = '';
+                contadorAcompanantes = 0;
+            }
+        }
+
+        function toggleRestriccion(id) {
+            const radioRestriccion = document.querySelector(`input[name="menu${id}"][value="restriccion"]`);
+            const container = document.getElementById(`restriccion${id}Container`);
+            const inputField = document.getElementById(`restriccion${id}`);
+
+            if (radioRestriccion && radioRestriccion.checked) {
+                container.classList.remove('hidden');
+                inputField.setAttribute('required', 'true');
+            } else {
+                container.classList.add('hidden');
+                inputField.removeAttribute('required');
+                inputField.value = '';
+            }
+        }
+
+        function agregarAcompanante() {
+            contadorAcompanantes++;
+            const idActual = contadorAcompanantes;
+            
+            const div = document.createElement('div');
+            div.className = 'acompanante-item';
+            div.id = `acompananteRow_${idActual}`;
+            
+            div.innerHTML = `
+                <button type="button" class="btn-eliminar" onclick="eliminarAcompanante(${idActual})">✕ Quitar</button>
+                <div class="form-group">
+                    <label>Nombre acompañante / familiar</label>
+                    <input type="text" name="nombreAcom_${idActual}" required placeholder="Nombre completo">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Menú</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="menuAcom_${idActual}" value="tradicional" required onchange="toggleRestriccion('Acom_${idActual}')"> Tradicional</label>
+                        <label class="radio-item"><input type="radio" name="menuAcom_${idActual}" value="vegetariano" onchange="toggleRestriccion('Acom_${idActual}')"> Vegetariano</label>
+                        <label class="radio-item"><input type="radio" name="menuAcom_${idActual}" value="restriccion" onchange="toggleRestriccion('Acom_${idActual}')"> Restricción alimentaria</label>
+                    </div>
+                    <div id="restriccionAcom_${idActual}Container" class="restriccion-input hidden">
+                        <input type="text" id="restriccionAcom_${idActual}" name="restriccionAcom_${idActual}" placeholder="Indique qué alimentos no puede consumir">
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('contenedorAcompanantes').appendChild(div);
+        }
+
+        function eliminarAcompanante(id) {
+            const elemento = document.getElementById(`acompananteRow_${id}`);
+            if (elemento) {
+                elemento.remove();
+            }
+        }
+
+        document.getElementById('rsvpForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btnEnviar = document.querySelector('#asistencia .btn-primary');
+            btnEnviar.innerText = "Enviando...";
+            btnEnviar.disabled = true;
+
+            const nombreInvitado = document.getElementById('nombreInvitado').value;
+            const asistencia = document.querySelector('input[name="asistencia"]:checked').value;
+            
+            let payload = {
+                nombreInvitado: nombreInvitado,
+                asistencia: asistencia,
+                menuTitular: asistencia === 'si' ? document.querySelector('input[name="menuTitular"]:checked').value : 'no_asiste',
+                restriccionTitular: asistencia === 'si' ? document.getElementById('restriccionTitular').value : '',
+                acompanantes: []
+            };
+
+            if (asistencia === 'si') {
+                const filasAcompanantes = document.querySelectorAll('.acompanante-item');
+                filasAcompanantes.forEach(fila => {
+                    const id = fila.id.split('_')[1];
+                    const nombreAcom = fila.querySelector(`input[name="nombreAcom_${id}"]`).value;
+                    const menuAcom = fila.querySelector(`input[name="menuAcom_${id}"]:checked`).value;
+                    const restriccionAcom = fila.querySelector(`input[name="restriccionAcom_${id}"]`).value;
+                    
+                    payload.acompanantes.push({ nombre: nombreAcom, menu: menuAcom, restriccion: restriccionAcom });
+                });
+            }
+
+            fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                alert("¡Muchas gracias! Tu confirmación ha sido registrada.");
+                document.getElementById('rsvpForm').reset();
+                document.getElementById('detallesTitular').classList.add('hidden');
+                btnEnviar.innerText = "Enviar Confirmación";
+                btnEnviar.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+                btnEnviar.innerText = "Enviar Confirmación";
+                btnEnviar.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
