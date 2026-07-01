@@ -142,7 +142,25 @@
             border: 1px dashed #bfa15f; padding: 40px; background-color: #fcfaf5; border-radius: 4px;
         }
         .icon-large { font-size: 40px; margin-bottom: 15px; }
-
+        /* --- MINI MAPA / FOTO --- */
+        .media-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 15px auto 30px auto;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #eae6dc;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            height: 280px; 
+            background-color: #faf9f6;
+        }
+        .media-container iframe, .media-container img {
+            width: 100%;
+            height: 100%;
+            border: none;
+            object-fit: cover;
+            display: block;
+        }
         /* --- ESTILOS DEL FORMULARIO --- */
         .form-container {
             background-color: #fff; padding: 50px 40px; border-radius: 4px;
@@ -208,13 +226,19 @@
     <!-- PÁGINA: UBICACIÓN -->
     <section id="ubicacion" class="page-section">
         <h2 class="section-title">Ceremonia y Recepción</h2>
-        <p class="details-text">
+        <p class="details-text" style="margin-bottom: 15px;">
             <strong>Sábado 17 de Octubre 2026 a las 17:30 horas</strong><br><br>
             Centro de Eventos, Peña & Olave<br>
             Aldea Campesina, sector El Guindo, lote 4, Talca.<br><br>
             <em>Dress code: Formal<br>(Reserva de color: Verde Edén)</em>
         </p>
-        <a href="https://maps.google.com/?q=Centro+de+Eventos+Peña+y+Olave+Talca" target="_blank" class="btn-primary">Ver mapa en Google Maps</a>
+
+        <div class="media-container">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3271.7483864096054!2d-71.6558231!3d-35.429302!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9665c71b12204c35%3A0x6b772590fcbe6e8e!2sTalca%2C%20Maule!5e0!3m2!1ses-419!2scl!4v1717000000000!5m2!1ses-419!2scl" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            
+            </div>
+
+        <a href="https://maps.app.goo.gl/TU_ENLACE_CORTO_AQUI" target="_blank" class="btn-primary">Abrir en la App de Maps</a>
     </section>
 
     <!-- PÁGINA: REGALOS -->
