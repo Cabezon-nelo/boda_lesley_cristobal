@@ -1,19 +1,22 @@
 {
     "name": "Lesley & Cristóbal",
     "short_name": "L&C",
+    "description": "Invitación digital al matrimonio de Lesley y Cristóbal",
     "icons": [
         {
-            "src": "/assets/android-chrome-192x192.png",
+            "src": "/assets/web-app-manifest-192x192.png",
             "sizes": "192x192",
             "type": "image/png"
         },
         {
-            "src": "/assets/android-chrome-512x512.png",
+            "src": "/assets/web-app-manifest-512x512.png",
             "sizes": "512x512",
             "type": "image/png"
         }
     ],
-    "theme_color": "#FCFAF6",
-    "background_color": "#FCFAF6",
-    "display": "standalone"
+    "theme_color": "#FAF6F1",
+    "background_color": "#FAF6F1",
+    "display": "standalone",
+    "start_url": "/",
+    "scope": "/"
 }
