@@ -295,6 +295,184 @@
                     btn.disabled = false;
                 }
             }
+
+        // =================================================================
+        // 3. PROCESAMIENTO Y CRUCE DE DATOS (COTEJO)
+        // =================================================================
+        function realizarCotejo() {
+            invitadosCotejados = [];
+        
+            listaOficialNombres.forEach(nombreOficial => {
+                if (!nombreOficial) return;
+        
+                // Buscamos si el invitado oficial ya respondió en el formulario
+                let respForm = respuestasInvitados.find(
+                    r => r.nombre.toLowerCase().trim() === nombreOficial.toLowerCase().trim()
+                );
+        
+                if (respForm) {
+                    invitadosCotejados.push({
+                        nombre: nombreOficial,
+                        estado: respForm.asistencia, // "Sí" o "No" según tu formulario
+                        menu: respForm.menu || "Estándar",
+                        acompaniantes: respForm.acompanantes || "0",
+                        mesaAsignada: respForm.mesa || "",
+                        filaExcel: respForm.fila // Guardamos la fila por si necesitamos editarla después
+                    });
+                } else {
+                    invitadosCotejados.push({
+                        nombre: nombreOficial,
+                        estado: "Pendiente",
+                        menu: "-",
+                        acompaniantes: "-",
+                        mesaAsignada: "",
+                        filaExcel: null
+                    });
+                }
+            });
+        }
+        
+        // =================================================================
+        // 4. RENDERIZADO DE TABLAS Y ESTADÍSTICAS
+        // =================================================================
+        function renderizarTodo() {
+            // --- Actualizar Tarjetas de Estadísticas ---
+            const total = invitadosCotejados.length;
+            const confirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si').length;
+            const rechazados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'no').length;
+            const pendientes = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'pendiente').length;
+        
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-si').innerText = confirmados;
+            document.getElementById('stat-no').innerText = rechazados;
+            document.getElementById('stat-pendiente').innerText = pendientes;
+        
+            // --- Tabla 1: Lista Oficial vs Respuestas ---
+            const tbodyLista = document.getElementById('tabla-lista-oficial');
+            tbodyLista.innerHTML = '';
+            
+            invitadosCotejados.forEach(inv => {
+                let claseTag = 'tag-pendiente';
+                if (inv.estado.toLowerCase() === 'sí' || inv.estado.toLowerCase() === 'si') claseTag = 'tag-si';
+                if (inv.estado.toLowerCase() === 'no') claseTag = 'tag-no';
+        
+                tbodyLista.innerHTML += `
+                    <tr>
+                        <td>**${inv.nombre}**</td>
+                        <td><span class="tag ${claseTag}">${inv.estado}</span></td>
+                        <td>${inv.menu}</td>
+                        <td>${inv.acompaniantes}</td>
+                    </tr>
+                `;
+            });
+        
+            // --- Tabla 2: Gestión de Mesas Definidas ---
+            const tbodyMesas = document.getElementById('tabla-mesas-creadas');
+            tbodyMesas.innerHTML = '';
+            
+            mesasBD.forEach(mesa => {
+                // Contamos cuántas personas reales están asignadas a esta mesa en la pestaña "Respuestas"
+                let asignadosAqui = respuestasInvitados.filter(r => r.mesa.toString().toLowerCase().trim() === mesa.nombre.toString().toLowerCase().trim()).length;
+                let disponible = mesa.capacidad - asignadosAqui;
+        
+                tbodyMesas.innerHTML += `
+                    <tr>
+                        <td>${mesa.nombre}</td>
+                        <td>${mesa.capacidad}</td>
+                        <td>${asignadosAqui}</td>
+                        <td>${disponible <= 0 ? '❌ Lleno' : disponible}</td>
+                    </tr>
+                `;
+            });
+        
+            // --- Tabla 3: Asignación de Mesas (Solo Confirmados) ---
+            const tbodyAsignacion = document.getElementById('tabla-asignacion-mesas');
+            tbodyAsignacion.innerHTML = '';
+        
+            // Filtrar solo los invitados que dijeron que "Sí" van
+            let soloConfirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si');
+        
+            soloConfirmados.forEach(inv => {
+                // Generar un selector dinámico con las mesas creadas en tu Excel
+                let opcionesMesas = `<option value="">-- Seleccionar Mesa --</option>`;
+                mesasBD.forEach(m => {
+                    let seleccionado = inv.mesaAsignada.toString().trim() === m.nombre.toString().trim() ? 'selected' : '';
+                    opcionesMesas += `<option value="${m.nombre}" ${seleccionado}>${m.nombre}</option>`;
+                });
+        
+                tbodyAsignacion.innerHTML += `
+                    <tr>
+                        <td>${inv.nombre}</td>
+                        <td>${inv.acompaniantes}</td>
+                        <td>
+                            <select id="sel-mesa-${inv.filaExcel}">
+                                ${opcionesMesas}
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn btn-success" onclick="guardarMesaInvitado(${inv.filaExcel})">Guardar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+        
+        // =================================================================
+        // 5. ACCIONES DE ENVÍO DE DATOS
+        // =================================================================
+        
+        // Carga Masiva (Modificada para que calce con tu acción "cargar_masivo")
+        async function agregarInvitadosMasivo() {
+            const textarea = document.getElementById('inv-masivo').value;
+            if (!textarea.trim()) return alert("Por favor ingresa nombres.");
+        
+            const nombresArray = textarea.split('\n').map(n => n.trim()).filter(n => n !== "");
+            const btn = document.querySelector('button[onclick="agregarInvitadosMasivo()"]');
+            
+            btn.innerText = "Cargando... ⏳";
+            btn.disabled = true;
+        
+            try {
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        accion: 'cargar_masivo', // Cambiado para calzar con tu Apps Script
+                        nombres: nombresArray
+                    })
+                });
+                
+                document.getElementById('inv-masivo').value = '';
+                alert(`¡Carga masiva lista! Se agregaron ${nombresArray.length} invitados.`);
+                await cargarDatosDesdeExcel();
+        
+            } catch (e) {
+                alert("Error en la carga masiva.");
+            } finally {
+                btn.innerText = "Cargar Lista";
+                btn.disabled = false;
+            }
+        }
+        
+        // Guarda la asignación de la mesa seleccionada en el Excel
+        async function guardarMesaInvitado(fila) {
+            const selector = document.getElementById(`sel-mesa-${fila}`);
+            const mesaSeleccionada = selector.value;
+            
+            try {
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        accion: 'asignar_mesa',
+                        fila: fila,
+                        nuevaMesa: mesaSeleccionada
+                    })
+                });
+                alert("Mesa guardada con éxito.");
+                await cargarDatosDesdeExcel(); // Recarga para recalcular la disponibilidad de asientos
+            } catch(e) {
+                alert("No se pudo guardar la asignación.");
+            }
+        }
     </script>
 </body>
 </html>
