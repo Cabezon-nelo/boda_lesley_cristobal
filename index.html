@@ -86,6 +86,16 @@
             margin-bottom: 30px;
         }
 
+        /* --- ESTILOS AGREGADOS PARA LA CUENTA REGRESIVA --- */
+        .countdown-container {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: #8a8273;
+            letter-spacing: 1px;
+            margin: 15px 0 35px 0;
+            font-style: italic;
+        }
+
         /* --- ELEMENTOS VISUALES --- */
         .hero-names {
             font-family: 'Great Vibes', cursive;
@@ -320,6 +330,26 @@
 
     <!-- SCRIPTS -->
     <script>
+        // --- LÓGICA DE LA CUENTA REGRESIVA ---
+        const fechaMatrimonio = new Date("Oct 17, 2026 17:30:00").getTime();
+
+        const x = setInterval(function() {
+            const ahora = new Date().getTime();
+            const distancia = fechaMatrimonio - ahora;
+
+            const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
+            const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
+
+            document.getElementById("cuenta-regresiva").innerHTML = `Faltan ${dias}d ${horas}h ${minutos}m ${segundos}s`;
+
+            if (distancia < 0) {
+                clearInterval(x);
+                document.getElementById("cuenta-regresiva").innerHTML = "¡Hoy es el gran día!";
+            }
+        }, 1000);
+
         // --- LÓGICA DE NAVEGACIÓN (SIMULADOR DE PÁGINAS) ---
         function cambiarPagina(idPagina, elementoClicado) {
             // 1. Ocultar todas las páginas
