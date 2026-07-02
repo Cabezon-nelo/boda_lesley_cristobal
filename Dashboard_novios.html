@@ -169,6 +169,30 @@
     </div>
 
     <script>
+
+                    // Oculta el login y muestra el panel principal
+            function mostrarDashboard() {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('panel-screen').style.display = 'block';
+            }
+            
+            // Navegación entre pestañas
+            function cambiarPestaña(tabId) {
+                // Ocultar todas las pestañas
+                const tabs = document.querySelectorAll('.tab-content');
+                tabs.forEach(tab => tab.classList.remove('active'));
+                
+                // Quitar la clase active de todos los botones
+                const botones = document.querySelectorAll('.nav-btn');
+                botones.forEach(btn => btn.classList.remove('active'));
+                
+                // Mostrar la pestaña solicitada
+                document.getElementById(tabId).classList.add('active');
+                
+                // Encontrar el botón que fue clickeado y ponerlo activo
+                const btnActivo = document.querySelector(`button[onclick="cambiarPestaña('${tabId}')"]`);
+                if(btnActivo) btnActivo.classList.add('active');
+            }
         // --- CONFIGURACIÓN ---
             const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbwCJv0GZfk6tugF174CcY9LBEPqhm1-Rs8OT0Nkjs0QyAr3IhF4K1Spc-dYE2Z_DzN1YA/exec"; 
 
