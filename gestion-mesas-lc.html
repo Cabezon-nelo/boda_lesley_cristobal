@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Novios - Asignación de Mesas</title>
+    <style>
+        /* Estilos minimalistas y funcionales */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9f9f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow-x: auto; }
+        h1, h2 { text-align: center; color: #b89768; }
+        
+        /* Pantalla de Login */
+        #login-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; }
+        input[type="password"] { padding: 10px; margin-bottom: 15px; width: 250px; border: 1px solid #ccc; border-radius: 4px; }
+        button { padding: 10px 20px; background-color: #b89768; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background-color 0.3s; }
+        button:hover { background-color: #9d7d4c; }
+
+        /* Pantalla del Panel (Oculta por defecto) */
+        #panel-screen { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
+        th, td { border: 1px solid #eee; padding: 10px; text-align: left; vertical-align: middle; }
+        th { background-color: #fafafa; color: #555; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px;}
+        
+        select { padding: 8px; width: 100%; border-radius: 4px; border: 1px solid #ccc; }
+        .btn-guardar { background-color: #4CAF50; width: 100%; padding: 8px; }
+        .btn-guardar:hover { background-color: #45a049; }
+        .tag-si { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 12px; font-weight: bold; font-size: 0.85em;}
+        .tag-no { background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 12px; font-weight: bold; font-size: 0.85em;}
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <h2>Acceso Exclusivo Novios</h2>
+        <input type="password" id="password-input" placeholder="Ingresa la contraseña">
+        <button onclick="verificarPassword()">Entrar al Panel</button>
+    </div>
+
+    <div id="panel-screen" class="container">
+        <h1>Asignación de Mesas</h1>
+        <p style="text-align: center; color: #666;">Administración de base de datos de invitados</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Invitado Principal</th>
+                    <th>Asistencia</th>
+                    <th>Menú Principal</th>
+                    <th>Alergias</th>
+                    <th>Acompañantes y Menús</th>
+                    <th>Mesa Asignada</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-invitados">
+                <tr>
+                    <td colspan="8" style="text-align: center;">Esperando cargar datos...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        const PASSWORD_CORRECTA = "boda2026"; 
+        const URL_GOOGLE_SCRIPT = "AQUI_PONDRIAS_LA_URL_DE_TU_SCRIPT"; 
+        
+        function verificarPassword() {
+            const input = document.getElementById('password-input').value;
+            if (input === PASSWORD_CORRECTA) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('panel-screen').style.display = 'block';
+                cargarInvitados(); 
+            } else {
+                alert("Contraseña incorrecta.");
+            }
+        }
+
+        document.getElementById('password-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') verificarPassword();
+        });
+
+        // --- LÓGICA DE BASE DE DATOS ---
+        async function cargarInvitados() {
+            const tbody = document.getElementById('tabla-invitados');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Cargando invitados desde la base de datos... ⏳</td></tr>';
+
+            try {
+                // Descomentar cuando uses fetch real
+                // const response = await fetch(URL_GOOGLE_SCRIPT);
+                // const data = await response.json();
+                
+                // MOCK DE DATOS BASADO EN TU IMAGEN
+                // Nota: Añadimos 'fila' simulando el número de fila en el Excel (muy útil para actualizar luego)
+                const data = [
+                    { 
+                        fila: 2, 
+                        fecha: "1/07/2026 18:26", 
+                        nombre: "Emanuel Bustamante Poblete", 
+                        asistencia: "si",
+                        menu: "tradicional",
+                        alergias: "Ninguna",
+                        acompanantes: "Sin acompañantes",
+                        mesa: "" 
+                    },
+                    { 
+                        fila: 3, 
+                        fecha: "2/07/2026 09:15", 
+                        nombre: "Ejemplo Invitado 2", 
+                        asistencia: "no",
+                        menu: "-",
+                        alergias: "-",
+                        acompanantes: "-",
+                        mesa: "" 
+                    }
+                ];
+                
+                renderizarTabla(data);
+
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: red;">Error al cargar los datos.</td></tr>';
+                console.error("Error:", error);
+            }
+        }
+
+        function renderizarTabla(invitados) {
+            const tbody = document.getElementById('tabla-invitados');
+            tbody.innerHTML = ''; 
+
+            const opcionesMesas = [
+                'Mesa 1 (Familia Novia)', 
+                'Mesa 2 (Familia Novio)', 
+                'Mesa 3 (Amigos)', 
+                'Mesa 4 (Trabajo)', 
+                'Mesa Principal'
+            ];
+
+            invitados.forEach(invitado => {
+                const tr = document.createElement('tr');
+                
+                // Formatear asistencia visualmente
+                const asistenciaSpan = invitado.asistencia.toLowerCase() === 'si' 
+                    ? `<span class="tag-si">Sí</span>` 
+                    : `<span class="tag-no">No</span>`;
+
+                // Construir el menú desplegable de mesas
+                let selectHTML = `<select id="mesa-${invitado.fila}" ${invitado.asistencia.toLowerCase() !== 'si' ? 'disabled' : ''}>
+                                    <option value="">Sin asignar</option>`;
+                opcionesMesas.forEach(mesa => {
+                    const selected = invitado.mesa === mesa ? 'selected' : '';
+                    selectHTML += `<option value="${mesa}" ${selected}>${mesa}</option>`;
+                });
+                selectHTML += `</select>`;
+
+                tr.innerHTML = `
+                    <td>${invitado.fecha}</td>
+                    <td><strong>${invitado.nombre}</strong></td>
+                    <td>${asistenciaSpan}</td>
+                    <td>${invitado.menu}</td>
+                    <td>${invitado.alergias}</td>
+                    <td>${invitado.acompanantes}</td>
+                    <td>${selectHTML}</td>
+                    <td>
+                        <button class="btn-guardar" onclick="guardarMesa(${invitado.fila}, '${invitado.nombre}')" ${invitado.asistencia.toLowerCase() !== 'si' ? 'disabled style="background:#ccc; cursor:not-allowed;"' : ''}>Guardar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function guardarMesa(filaExcel, nombre) {
+            const nuevaMesa = document.getElementById(`mesa-${filaExcel}`).value;
+            
+            console.log(`Guardando: Fila ${filaExcel} (${nombre}) a ${nuevaMesa || 'Ninguna mesa'}`);
+            alert(`Actualizando a ${nombre} -> ${nuevaMesa || 'Sin asignar'}...\n(Fila en Excel: ${filaExcel})`);
+
+            /* Ejemplo de cómo será el fetch POST a Google Script:
+            try {
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        accion: 'asignar_mesa',
+                        fila: filaExcel,      // El script buscará esta fila directamente
+                        columna: 7,           // La columna G es la 7
+                        valor: nuevaMesa      // El nombre de la mesa seleccionada
+                    }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                alert('Mesa asignada correctamente');
+            } catch (error) {
+                alert('Hubo un error al asignar la mesa');
+            }
+            */
+        }
+    </script>
+</body>
+</html>
