@@ -53,6 +53,75 @@
         .tag-si { background: #e8f5e9; color: #2e7d32; }
         .tag-no { background: #ffebee; color: #c62828; }
         .tag-pendiente { background: #fff3e0; color: #ef6c00; }
+
+        /* Panel Visual de Mesas Estilo Elegante */
+        .mesa-galeria { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 30px; 
+            justify-content: center; 
+            margin-top: 20px;
+        }
+        .mesa-card {
+            background-color: #fcfbf8; /* Tono crema de la imagen */
+            width: 320px;
+            padding: 40px 30px;
+            text-align: center;
+            border: 1px solid #eaeaea;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .mesa-card .numero { 
+            font-family: 'Times New Roman', Times, serif; 
+            font-size: 7em; 
+            line-height: 1; 
+            margin: 0; 
+            color: #111;
+        }
+        .mesa-card .titulo { 
+            font-family: 'Times New Roman', Times, serif; 
+            font-size: 1.8em; 
+            letter-spacing: 8px; 
+            text-transform: uppercase; 
+            margin-bottom: auto; 
+        }
+        .mesa-card .novios { 
+            font-family: 'Brush Script MT', 'Lucida Handwriting', cursive; 
+            font-size: 2.2em; 
+            color: #bfa175; /* Dorado/Ocre */
+            margin: 40px 0 10px 0; 
+        }
+        .mesa-card .fecha { 
+            font-size: 0.85em; 
+            letter-spacing: 4px; 
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .mesa-card .lista-invitados { 
+            text-align: left; 
+            border-top: 1px solid #ddd; 
+            padding-top: 15px; 
+            font-size: 0.95em;
+            min-height: 100px;
+        }
+        .mesa-card .invitado-item {
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        .mesa-card .sillas-info { 
+            font-size: 0.85em; 
+            font-weight: bold;
+            margin-top: 15px; 
+            padding: 8px; 
+            border-radius: 4px; 
+        }
+        .sillas-ok { background: #e8f5e9; color: #2e7d32; }
+        .sillas-llena { background: #ffebee; color: #c62828; }
+        
     </style>
 </head>
 <body>
@@ -73,6 +142,7 @@
             <button class="nav-btn" onclick="cambiarPestaña('tab-lista')">Lista de Invitados</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-mesas')">Crear Mesas</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-asignacion')">Asignación de Mesas</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-visual-mesas')">Plano de Mesas</button>
         </nav>
 
         <div class="container">
@@ -164,167 +234,230 @@
                         </tbody>
                 </table>
             </div>
-
+            <div id="tab-visual-mesas" class="tab-content">
+                <h2>Plano Visual de Mesas</h2>
+                <div id="galeria-mesas" class="mesa-galeria">
+                    </div>
+            </div>
         </div>
     </div>
 
     <script>
 
-                    // Oculta el login y muestra el panel principal
-            function mostrarDashboard() {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('panel-screen').style.display = 'block';
-            }
+        // --- FUNCIONES DE INTERFAZ ---
+        
+        // Oculta el login y muestra el panel principal
+        function mostrarDashboard() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('panel-screen').style.display = 'block';
+        }
+        
+        // Navegación entre pestañas
+        function cambiarPestaña(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
             
-            // Navegación entre pestañas
-            function cambiarPestaña(tabId) {
-                // Ocultar todas las pestañas
-                const tabs = document.querySelectorAll('.tab-content');
-                tabs.forEach(tab => tab.classList.remove('active'));
-                
-                // Quitar la clase active de todos los botones
-                const botones = document.querySelectorAll('.nav-btn');
-                botones.forEach(btn => btn.classList.remove('active'));
-                
-                // Mostrar la pestaña solicitada
-                document.getElementById(tabId).classList.add('active');
-                
-                // Encontrar el botón que fue clickeado y ponerlo activo
-                const btnActivo = document.querySelector(`button[onclick="cambiarPestaña('${tabId}')"]`);
-                if(btnActivo) btnActivo.classList.add('active');
-            }
+            const botones = document.querySelectorAll('.nav-btn');
+            botones.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            
+            const btnActivo = document.querySelector(`button[onclick="cambiarPestaña('${tabId}')"]`);
+            if(btnActivo) btnActivo.classList.add('active');
+        }
+        
         // --- CONFIGURACIÓN ---
-            const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbwCJv0GZfk6tugF174CcY9LBEPqhm1-Rs8OT0Nkjs0QyAr3IhF4K1Spc-dYE2Z_DzN1YA/exec"; 
-
-            let listaOficialNombres = []; 
-            let respuestasInvitados = []; 
-            let invitadosCotejados = []; 
-            let mesasBD = []; // Ahora se llenará dinámicamente desde el Excel
-
-            // Intentar auto-login básico al cargar la página
-            window.onload = function() {
-                const token = localStorage.getItem('token_novios'); // El token de sesión se mantiene por comodidad
-                if (token) {
+        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbwCJv0GZfk6tugF174CcY9LBEPqhm1-Rs8OT0Nkjs0QyAr3IhF4K1Spc-dYE2Z_DzN1YA/exec"; 
+        
+        let listaOficialNombres = []; 
+        let respuestasInvitados = []; 
+        let invitadosCotejados = []; 
+        let mesasBD = []; 
+        
+        window.onload = function() {
+            const token = localStorage.getItem('token_novios'); 
+            if (token) {
+                mostrarDashboard();
+                cargarDatosDesdeExcel();
+            }
+        };
+        
+        async function verificarPassword() {
+            const input = document.getElementById('password-input').value;
+            const btn = document.querySelector('#login-screen button');
+            if (!input) return alert("Ingresa la contraseña");
+            
+            btn.innerText = "Verificando... ⏳";
+            btn.disabled = true;
+        
+            try {
+                const respuesta = await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({ accion: 'login_novios', password: input })
+                });
+                const resultado = await respuesta.json();
+        
+                if (resultado.success) {
+                    localStorage.setItem('token_novios', resultado.token);
                     mostrarDashboard();
                     cargarDatosDesdeExcel();
+                } else {
+                    alert("Contraseña incorrecta.");
                 }
-            };
-
-            async function verificarPassword() {
-                const input = document.getElementById('password-input').value;
-                const btn = document.querySelector('#login-screen button');
-                if (!input) return alert("Ingresa la contraseña");
+            } catch (e) {
+                alert("Error conectando con la base de datos.");
+            } finally {
+                btn.innerText = "Ingresar al Dashboard";
+                btn.disabled = false;
+            }
+        }
+        
+        // =================================================================
+        // OBTENER Y ENVIAR DATOS AL EXCEL
+        // =================================================================
+        
+        async function cargarDatosDesdeExcel() {
+            document.getElementById('stat-total').innerText = "...";
+            try {
+                const respuesta = await fetch(URL_GOOGLE_SCRIPT);
+                const baseDatos = await respuesta.json();
                 
-                btn.innerText = "Verificando... ⏳";
-                btn.disabled = true;
-
-                try {
-                    const respuesta = await fetch(URL_GOOGLE_SCRIPT, {
-                        method: 'POST',
-                        body: JSON.stringify({ accion: 'login_novios', password: input })
-                    });
-                    const resultado = await respuesta.json();
-
-                    if (resultado.success) {
-                        localStorage.setItem('token_novios', resultado.token);
-                        mostrarDashboard();
-                        cargarDatosDesdeExcel();
-                    } else {
-                        alert("Contraseña incorrecta.");
-                    }
-                } catch (e) {
-                    alert("Error conectando con la base de datos.");
-                } finally {
-                    btn.innerText = "Ingresar al Dashboard";
-                    btn.disabled = false;
-                }
+                listaOficialNombres = baseDatos.listaOficialNovios || [];
+                respuestasInvitados = baseDatos.respuestasInvitados || [];
+                mesasBD = baseDatos.mesasDefinidas || []; 
+                
+                realizarCotejo();
+                renderizarTodo();
+        
+            } catch (e) {
+                console.error("Error cargando datos:", e);
+                alert("Hubo un problema descargando los datos de los invitados y mesas.");
             }
-
-            // OBTENER DATOS INTEGRADOS DESDE EXCEL (GET)
-            async function cargarDatosDesdeExcel() {
-                document.getElementById('stat-total').innerText = "...";
-                try {
-                    const respuesta = await fetch(URL_GOOGLE_SCRIPT);
-                    const baseDatos = await respuesta.json();
-                    
-                    // Asignamos las 3 colecciones viniendo directo del Excel
-                    listaOficialNombres = baseDatos.listaOficialNovios || [];
-                    respuestasInvitados = baseDatos.respuestasInvitados || [];
-                    mesasBD = baseDatos.mesasDefinidas || []; // ¡Adiós localStorage de mesas!
-                    
-                    realizarCotejo();
-                    renderizarTodo();
-
-                } catch (e) {
-                    console.error("Error cargando datos:", e);
-                    alert("Hubo un problema descargando los datos de los invitados y mesas.");
-                }
+        }
+        
+        async function crearMesa() {
+            let nombre = document.getElementById('mesa-nombre').value.trim();
+            let cap = parseInt(document.getElementById('mesa-capacidad').value);
+            if(!nombre || !cap) return alert("Por favor completa ambos campos.");
+        
+            const btn = document.querySelector('button[onclick="crearMesa()"]');
+            btn.innerText = "Guardando... ⏳";
+            btn.disabled = true;
+        
+            try {
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        accion: 'crear_mesa', 
+                        nombreMesa: nombre, 
+                        capacidad: cap 
+                    })
+                });
+                
+                document.getElementById('mesa-nombre').value = '';
+                document.getElementById('mesa-capacidad').value = '';
+                
+                await cargarDatosDesdeExcel();
+                alert(`¡Mesa "${nombre}" guardada con éxito en la base de datos!`);
+            } catch (e) {
+                alert("Hubo un error al guardar la mesa en Excel.");
+            } finally {
+                btn.innerText = "Crear Mesa";
+                btn.disabled = false;
             }
-
-            // CREAR MESA EN EL EXCEL (POST)
-            async function crearMesa() {
-                let nombre = document.getElementById('mesa-nombre').value.trim();
-                let cap = parseInt(document.getElementById('mesa-capacidad').value);
-                if(!nombre || !cap) return alert("Por favor completa ambos campos.");
-
-                const btn = document.querySelector('button[onclick="crearMesa()"]');
-                btn.innerText = "Guardando... ⏳";
-                btn.disabled = true;
-
-                try {
-                    await fetch(URL_GOOGLE_SCRIPT, {
-                        method: 'POST',
-                        body: JSON.stringify({ 
-                            accion: 'crear_mesa', 
-                            nombreMesa: nombre, 
-                            capacidad: cap 
-                        })
-                    });
-                    
-                    document.getElementById('mesa-nombre').value = '';
-                    document.getElementById('mesa-capacidad').value = '';
-                    
-                    // Recargamos el flujo completo desde Excel para asegurar sincronía
-                    await cargarDatosDesdeExcel();
-                    alert(`¡Mesa "${nombre}" guardada con éxito en la base de datos!`);
-
-                } catch (e) {
-                    alert("Hubo un error al guardar la mesa en Excel.");
-                } finally {
-                    btn.innerText = "Crear Mesa";
-                    btn.disabled = false;
-                }
+        }
+        
+        async function agregarInvitadosMasivo() {
+            const textarea = document.getElementById('inv-masivo').value;
+            if (!textarea.trim()) return alert("Por favor ingresa nombres.");
+        
+            const nombresArray = textarea.split('\n').map(n => n.trim()).filter(n => n !== "");
+            const btn = document.querySelector('button[onclick="agregarInvitadosMasivo()"]');
+            
+            btn.innerText = "Cargando... ⏳";
+            btn.disabled = true;
+        
+            try {
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        accion: 'cargar_masivo', 
+                        nombres: nombresArray
+                    })
+                });
+                
+                document.getElementById('inv-masivo').value = '';
+                alert(`¡Carga masiva lista! Se agregaron ${nombresArray.length} invitados.`);
+                await cargarDatosDesdeExcel();
+        
+            } catch (e) {
+                alert("Error en la carga masiva.");
+            } finally {
+                btn.innerText = "Cargar Lista";
+                btn.disabled = false;
             }
-
+        }
+        
+        async function guardarMesaInvitado(fila) {
+            const selector = document.getElementById(`sel-mesa-${fila}`);
+            const mesaSeleccionada = selector.value;
+            
+            try {
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        accion: 'asignar_mesa',
+                        fila: fila,
+                        nuevaMesa: mesaSeleccionada
+                    })
+                });
+                alert("Mesa guardada con éxito.");
+                await cargarDatosDesdeExcel(); 
+            } catch(e) {
+                alert("No se pudo guardar la asignación.");
+            }
+        }
+        
         // =================================================================
-        // 3. PROCESAMIENTO Y CRUCE DE DATOS (COTEJO)
+        // PROCESAMIENTO Y CRUCE DE DATOS (COTEJO)
         // =================================================================
+        
+        function limpiarTexto(texto) {
+            if (!texto) return "";
+            return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        }
+        
         function realizarCotejo() {
             invitadosCotejados = [];
         
             listaOficialNombres.forEach(nombreOficial => {
                 if (!nombreOficial) return;
+                let oficialLimpio = limpiarTexto(nombreOficial);
         
-                // Buscamos si el invitado oficial ya respondió en el formulario
-                let respForm = respuestasInvitados.find(
-                    r => r.nombre.toLowerCase().trim() === nombreOficial.toLowerCase().trim()
-                );
+                let respForm = respuestasInvitados.find(r => {
+                    let respLimpia = limpiarTexto(r.nombre);
+                    return oficialLimpio.includes(respLimpia) || respLimpia.includes(oficialLimpio);
+                });
         
                 if (respForm) {
+                    let numAcompaniantes = parseInt(respForm.acompanantes) || 0;
+                    
                     invitadosCotejados.push({
-                        nombre: nombreOficial,
-                        estado: respForm.asistencia, // "Sí" o "No" según tu formulario
+                        nombre: nombreOficial, 
+                        nombreFormulario: respForm.nombre, 
+                        estado: respForm.asistencia,
                         menu: respForm.menu || "Estándar",
-                        acompaniantes: respForm.acompanantes || "0",
+                        acompaniantes: numAcompaniantes,
                         mesaAsignada: respForm.mesa || "",
-                        filaExcel: respForm.fila // Guardamos la fila por si necesitamos editarla después
+                        filaExcel: respForm.fila
                     });
                 } else {
                     invitadosCotejados.push({
                         nombre: nombreOficial,
+                        nombreFormulario: "-",
                         estado: "Pendiente",
                         menu: "-",
-                        acompaniantes: "-",
+                        acompaniantes: 0,
                         mesaAsignada: "",
                         filaExcel: null
                     });
@@ -333,24 +466,19 @@
         }
         
         // =================================================================
-        // 4. RENDERIZADO DE TABLAS Y ESTADÍSTICAS
+        // RENDERIZADO VISUAL
         // =================================================================
+        
         function renderizarTodo() {
-            // --- Actualizar Tarjetas de Estadísticas ---
-            const total = invitadosCotejados.length;
-            const confirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si').length;
-            const rechazados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'no').length;
-            const pendientes = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'pendiente').length;
+            // --- ESTADÍSTICAS ---
+            document.getElementById('stat-total').innerText = invitadosCotejados.length;
+            document.getElementById('stat-si').innerText = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si').length;
+            document.getElementById('stat-no').innerText = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'no').length;
+            document.getElementById('stat-pendiente').innerText = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'pendiente').length;
         
-            document.getElementById('stat-total').innerText = total;
-            document.getElementById('stat-si').innerText = confirmados;
-            document.getElementById('stat-no').innerText = rechazados;
-            document.getElementById('stat-pendiente').innerText = pendientes;
-        
-            // --- Tabla 1: Lista Oficial vs Respuestas ---
+            // --- TABLA 1: LISTA OFICIAL VS RESPUESTAS ---
             const tbodyLista = document.getElementById('tabla-lista-oficial');
             tbodyLista.innerHTML = '';
-            
             invitadosCotejados.forEach(inv => {
                 let claseTag = 'tag-pendiente';
                 if (inv.estado.toLowerCase() === 'sí' || inv.estado.toLowerCase() === 'si') claseTag = 'tag-si';
@@ -358,7 +486,10 @@
         
                 tbodyLista.innerHTML += `
                     <tr>
-                        <td><strong>${inv.nombre}</td>
+                        <td>
+                            <strong>${inv.nombre}</strong><br>
+                            <small style="color:#888;">Ingresó como: ${inv.nombreFormulario}</small>
+                        </td>
                         <td><span class="tag ${claseTag}">${inv.estado}</span></td>
                         <td>${inv.menu}</td>
                         <td>${inv.acompaniantes}</td>
@@ -366,13 +497,20 @@
                 `;
             });
         
-            // --- Tabla 2: Gestión de Mesas Definidas ---
+            let soloConfirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si');
+        
+            // --- TABLA 2: GESTIÓN DE MESAS DEFINIDAS ---
             const tbodyMesas = document.getElementById('tabla-mesas-creadas');
             tbodyMesas.innerHTML = '';
-            
+        
             mesasBD.forEach(mesa => {
-                // Contamos cuántas personas reales están asignadas a esta mesa en la pestaña "Respuestas"
-                let asignadosAqui = respuestasInvitados.filter(r => r.mesa.toString().toLowerCase().trim() === mesa.nombre.toString().toLowerCase().trim()).length;
+                let asignadosAqui = 0;
+                let invitadosEnMesa = soloConfirmados.filter(inv => inv.mesaAsignada.toString().trim() === mesa.nombre.toString().trim());
+                
+                invitadosEnMesa.forEach(inv => {
+                    asignadosAqui += (1 + inv.acompaniantes);
+                });
+        
                 let disponible = mesa.capacidad - asignadosAqui;
         
                 tbodyMesas.innerHTML += `
@@ -385,15 +523,11 @@
                 `;
             });
         
-            // --- Tabla 3: Asignación de Mesas (Solo Confirmados) ---
+            // --- TABLA 3: ASIGNACIÓN DE MESAS ---
             const tbodyAsignacion = document.getElementById('tabla-asignacion-mesas');
             tbodyAsignacion.innerHTML = '';
         
-            // Filtrar solo los invitados que dijeron que "Sí" van
-            let soloConfirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si');
-        
             soloConfirmados.forEach(inv => {
-                // Generar un selector dinámico con las mesas creadas en tu Excel
                 let opcionesMesas = `<option value="">-- Seleccionar Mesa --</option>`;
                 mesasBD.forEach(m => {
                     let seleccionado = inv.mesaAsignada.toString().trim() === m.nombre.toString().trim() ? 'selected' : '';
@@ -415,64 +549,60 @@
                     </tr>
                 `;
             });
-        }
         
-        // =================================================================
-        // 5. ACCIONES DE ENVÍO DE DATOS
-        // =================================================================
+            // --- NUEVA SECCIÓN: PLANO VISUAL DE MESAS ---
+            const galeriaMesas = document.getElementById('galeria-mesas');
+            if(galeriaMesas) {
+                galeriaMesas.innerHTML = '';
         
-        // Carga Masiva (Modificada para que calce con tu acción "cargar_masivo")
-        async function agregarInvitadosMasivo() {
-            const textarea = document.getElementById('inv-masivo').value;
-            if (!textarea.trim()) return alert("Por favor ingresa nombres.");
+                mesasBD.forEach(mesa => {
+                    let sillasOcupadas = 0;
+                    let listaNombresHTML = '';
         
-            const nombresArray = textarea.split('\n').map(n => n.trim()).filter(n => n !== "");
-            const btn = document.querySelector('button[onclick="agregarInvitadosMasivo()"]');
-            
-            btn.innerText = "Cargando... ⏳";
-            btn.disabled = true;
+                    let invitadosEnMesa = soloConfirmados.filter(inv => inv.mesaAsignada.toString().trim() === mesa.nombre.toString().trim());
         
-            try {
-                await fetch(URL_GOOGLE_SCRIPT, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        accion: 'cargar_masivo', // Cambiado para calzar con tu Apps Script
-                        nombres: nombresArray
-                    })
+                    invitadosEnMesa.forEach(inv => {
+                        let totalSillasGrupo = 1 + inv.acompaniantes; 
+                        sillasOcupadas += totalSillasGrupo;
+                        
+                        let textoAcomp = inv.acompaniantes > 0 ? ` <em>(+${inv.acompaniantes})</em>` : '';
+                        
+                        listaNombresHTML += `
+                            <div class="invitado-item">
+                                <span>${inv.nombre}${textoAcomp}</span>
+                                <strong>${totalSillasGrupo} <small>sillas</small></strong>
+                            </div>
+                        `;
+                    });
+        
+                    let sillasLibres = mesa.capacidad - sillasOcupadas;
+                    let estadoSillasClase = sillasLibres < 0 ? 'sillas-llena' : 'sillas-ok';
+                    let textoEstadoSillas = sillasLibres < 0 ? `⚠️ Faltan ${Math.abs(sillasLibres)} sillas` : `✓ ${sillasLibres} sillas disponibles`;
+        
+                    let numeroMesaVisual = mesa.nombre.replace(/[^0-9]/g, ''); 
+                    if(!numeroMesaVisual) numeroMesaVisual = mesa.nombre; 
+        
+                    galeriaMesas.innerHTML += `
+                        <div class="mesa-card">
+                            <h2 class="numero">${numeroMesaVisual}</h2>
+                            <h3 class="titulo">Mesa</h3>
+                            <div class="novios">Lesley y Cristóbal</div>
+                            <div class="fecha">17 / 10 / 2026</div>
+                            
+                            <div class="lista-invitados">
+                                ${listaNombresHTML || '<div style="color:#aaa; text-align:center; padding-top:20px;">Mesa vacía</div>'}
+                            </div>
+                            
+                            <div class="sillas-info ${estadoSillasClase}">
+                                Ocupadas: ${sillasOcupadas} / ${mesa.capacidad} <br>
+                                ${textoEstadoSillas}
+                            </div>
+                        </div>
+                    `;
                 });
-                
-                document.getElementById('inv-masivo').value = '';
-                alert(`¡Carga masiva lista! Se agregaron ${nombresArray.length} invitados.`);
-                await cargarDatosDesdeExcel();
-        
-            } catch (e) {
-                alert("Error en la carga masiva.");
-            } finally {
-                btn.innerText = "Cargar Lista";
-                btn.disabled = false;
             }
         }
         
-        // Guarda la asignación de la mesa seleccionada en el Excel
-        async function guardarMesaInvitado(fila) {
-            const selector = document.getElementById(`sel-mesa-${fila}`);
-            const mesaSeleccionada = selector.value;
-            
-            try {
-                await fetch(URL_GOOGLE_SCRIPT, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        accion: 'asignar_mesa',
-                        fila: fila,
-                        nuevaMesa: mesaSeleccionada
-                    })
-                });
-                alert("Mesa guardada con éxito.");
-                await cargarDatosDesdeExcel(); // Recarga para recalcular la disponibilidad de asientos
-            } catch(e) {
-                alert("No se pudo guardar la asignación.");
-            }
-        }
     </script>
 </body>
 </html>
