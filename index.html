@@ -58,6 +58,22 @@
             color: #bfa15f;
             font-weight: 600;
         }
+      
+        /* --- Divisor de contador --- */
+        .count-divider{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            margin:28px 0;
+            color:#c5a04c;
+        }
+        
+        .count-divider span{
+            width:90px;
+            height:1px;
+            background:#d8cdbd;
+            margin:0 14px;
+        }
 
         /* --- SECCIONES COMO PÁGINAS INDIVIDUALES --- */
         .page-section {
@@ -87,13 +103,49 @@
         }
 
         /* --- ESTILOS AGREGADOS PARA LA CUENTA REGRESIVA --- */
-        .countdown-container {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            color: #8a8273;
-            letter-spacing: 1px;
-            margin: 15px 0 35px 0;
-            font-style: italic;
+        .countdown-wrapper{
+            margin:35px auto 45px;
+            text-align:center;
+        }
+
+        .countdown-title{
+            font-family:'Playfair Display',serif;
+            font-style:italic;
+            font-size:24px;
+            color:#9c9182;
+            margin-bottom:25px;
+        }
+
+        .countdown-grid{
+            display:flex;
+            justify-content:center;
+            gap:14px;
+            flex-wrap:wrap;
+        }
+
+        .count-box{
+            width:78px;
+            padding:18px 10px;
+            border:1px solid #ddd3c6;
+            border-radius:12px;
+            background:#fffdfa;
+            box-shadow:0 2px 8px rgba(0,0,0,.03);
+        }
+
+        .count-box span{
+            display:block;
+            font-family:'Playfair Display',serif;
+            font-size:42px;
+            color:#c5a04c;
+            font-weight:600;
+            line-height:1;
+        }
+        .count-box small{
+            display:block;
+            margin-top:12px;
+            letter-spacing:2px;
+            color:#7c7469;
+            font-size:11px;
         }
 
         /* --- ELEMENTOS VISUALES --- */
@@ -230,8 +282,26 @@
             <span>Cristóbal</span>
         </div>
         <div class="hero-date">17 . Octubre . 2026</div>
+        
+        <div class="count-divider"> <span></span> ♥ <span></span> </div>
     <!-- Cuenta Regresiva Si rompe el sistema quitarlo -->
-        <div id="cuenta-regresiva" class="countdown-container"></div>
+        
+    <div class="countdown-wrapper">
+            <p class="countdown-title">   Faltan para nuestro gran día </p>
+            <div id="cuenta-regresiva" class="countdown-grid"> <div class="count-box">
+            <span id="dias">000</span>
+             <small>DÍAS</small>
+            </div>
+            <div class="count-box">
+            <span id="horas">00</span>
+            <small>HORAS</small>
+            </div>
+            <div class="count-box">
+            <span id="minutos">00</span>
+            <small>MINUTOS</small>
+            </div>
+            <div class="count-box"> <span id="segundos">00</span>  <small>SEGUNDOS</small>  </div> </div>
+    </div>
         
         <p class="details-text" style="text-transform: uppercase; letter-spacing: 1px;">Tenemos el agrado de invitarte a nuestro matrimonio</p>
         
@@ -336,23 +406,22 @@
     <script>
         // --- LÓGICA DE LA CUENTA REGRESIVA ---
         const fechaMatrimonio = new Date("Oct 17, 2026 17:30:00").getTime();
-
-        const x = setInterval(function() {
-            const ahora = new Date().getTime();
-            const distancia = fechaMatrimonio - ahora;
-
-            const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
-            const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
-            const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
-
-            document.getElementById("cuenta-regresiva").innerHTML = `Faltan ${dias}d ${horas}h ${minutos}m ${segundos}s`;
-
-            if (distancia < 0) {
-                clearInterval(x);
-                document.getElementById("cuenta-regresiva").innerHTML = "¡Hoy es el gran día!";
-            }
-        }, 1000);
+            setInterval(function () {
+                const ahora = new Date().getTime();
+                const distancia = fechaMatrimonio - ahora;
+                const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+                const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
+                document.getElementById("dias").textContent = dias;
+                document.getElementById("horas").textContent = horas;
+                document.getElementById("minutos").textContent = minutos;
+                document.getElementById("segundos").textContent = segundos;
+                if (distancia < 0) {
+                    document.querySelector(".countdown-wrapper").innerHTML =
+                        "<h2>¡Hoy es nuestro gran día!</h2>";
+                }
+            },1000);
 
         // --- LÓGICA DE NAVEGACIÓN (SIMULADOR DE PÁGINAS) ---
         function cambiarPagina(idPagina, elementoClicado) {
