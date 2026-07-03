@@ -775,7 +775,10 @@
                 });
             }
             async function crearGrupoFamiliar() {
-            let nombreFamilia = document.getElementById("txt-nombre-familia").value.trim();
+            let selector = document.getElementById("sel-familia-oficial");
+            if (!selector)
+                return alert("No se encontró el selector de familias.")
+            let nombreFamilia = selector.value.trim();
             if (!nombreFamilia)
                 return alert("Por favor, ingresa un nombre para el grupo familiar.");
             let checkboxes = document.querySelectorAll(".chk-invitado-familia:checked");
@@ -797,7 +800,6 @@
                         filas: filas
                     })
                 });
-                document.getElementById("txt-nombre-familia").value = "";
                 await cargarDatosDesdeExcel();
                 alert(`Grupo "${nombreFamilia}" guardado correctamente.`);
             } catch (e) {
@@ -919,6 +921,11 @@
         }
 
         function mostrarIntegrantesFamilia(){
+            console.log("Familia seleccionada:", familia);
+            console.table(invitadosCotejados.map(i => ({
+                nombre: i.nombre,
+                familia: i.familiaManual
+            })));
             let familia=document.getElementById("sel-familia-oficial").value;
             let contenedor=document.getElementById("lista-integrantes-familia");
             if(!familia){
