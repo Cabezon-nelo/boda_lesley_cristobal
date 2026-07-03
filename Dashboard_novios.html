@@ -185,6 +185,7 @@
             <button class="nav-btn" onclick="cambiarPestaña('tab-lista')">Lista de Invitados</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-mesas')">Crear Mesas</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-asignacion')">Asignación de Mesas</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-familias')">Gestión de Familias</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-visual-mesas')">Plano de Mesas</button>
         </nav>
 
@@ -289,6 +290,38 @@
                 <div id="galeria-mesas" class="mesa-galeria">
                     </div>
             </div>
+            
+            <div id="tab-familias" class="tab-content">
+                <h2>Crear o Modificar Grupos Familiares</h2>
+                <p><small>Selecciona los invitados de la lista de abajo, asígnales un nombre de familia y agrúpalos para que el sistema los mueva y contabilice juntos.</small></p>
+                
+                <div class="form-group" style="align-items: flex-end;">
+                    <div style="flex: 1;">
+                        <label><strong>Nombre del Grupo Familiar:</strong></label>
+                        <input type="text" id="txt-nombre-familia" placeholder="Ej: Familia Olmedo Pavez" style="width: 100%; margin-top: 5px;">
+                    </div>
+                    <button class="btn btn-primary" onclick="crearGrupoFamiliar()" style="height: fit-content; margin-bottom: 2px;">
+                        📦 Agrupar Seleccionados
+                    </button>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+                <h3>Lista de Invitados para Agrupar</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Seleccionar</th>
+                            <th style="width: 40%;">Invitado</th>
+                            <th style="width: 25%;">Estado</th>
+                            <th style="width: 30%;">Familia Actual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-seleccion-familias">
+                    </tbody>
+                </table>
+            </div>
+            
         </div>
     </div>
 
@@ -491,6 +524,7 @@
         
                 if (respForm) {
                     let numAcompaniantes = parseInt(respForm.acompanantes) || 0;
+                    let textoAcompanantes = respForm.acompanantes ? respForm.acompanantes.toString() : "";
                     
                     invitadosCotejados.push({
                         nombre: nombreOficial, 
@@ -498,6 +532,8 @@
                         estado: respForm.asistencia,
                         menu: respForm.menu || "Estándar",
                         acompaniantes: numAcompaniantes,
+                        detalleFamilia: textoAcompanantes,
+                        familiaManual: "", // <--- NUEVO CAMPO AÑADIDO
                         mesaAsignada: respForm.mesa || "",
                         filaExcel: respForm.fila
                     });
@@ -508,13 +544,15 @@
                         estado: "Pendiente",
                         menu: "-",
                         acompaniantes: 0,
+                        detalleFamilia: "",
+                        familiaManual: "", // <--- NUEVO CAMPO AÑADIDO
                         mesaAsignada: "",
                         filaExcel: null
                     });
                 }
             });
         }
-        
+    
         // =================================================================
         // RENDERIZADO VISUAL
         // =================================================================
@@ -587,10 +625,15 @@
                     let seleccionado = inv.mesaAsignada.toString().trim() === m.nombre.toString().trim() ? 'selected' : '';
                     opcionesMesas += `<option value="${m.nombre}" ${seleccionado}>${m.nombre}</option>`;
                 });
-        
+                    let etiquetaGrupo = "";
+                        if (inv.familiaManual) {
+                            etiquetaGrupo = `<br><span style="background: #e3f2fd; color: #0d47a1; font-size: 0.8em; padding: 2px 6px; border-radius: 4px; font-weight: bold;">👪 Vinculado a: ${inv.familiaManual}</span>`;
+                    }     else if (inv.acompaniantes > 0 && inv.detalleFamilia && inv.detalleFamilia !== "-") {
+                            etiquetaGrupo = `<br><small style="color: #777;">Incluye a: ${inv.detalleFamilia}</small>`;
+                    }
                 tbodyAsignacion.innerHTML += `
                     <tr>
-                        <td>${inv.nombre}</td>
+                        <td><strong>${inv.nombre}</strong>${etiquetaGrupo}</td>
                         <td>${inv.acompaniantes}</td>
                         <td>
                             <select id="sel-mesa-${inv.filaExcel}">
@@ -658,7 +701,64 @@
         }
 
         // =================================================================
-        // NUEVAS ACCIONES: EDITAR Y ELIMINAR MESAS
+        // Acción: Gestion de familias
+        // =================================================================
+        function renderizarPestanaFamilias() {
+                    let tbody = document.getElementById("tbody-seleccion-familias");
+                    if (!tbody) return;
+                    tbody.innerHTML = "";
+        
+                    invitadosCotejados.forEach((inv, index) => {
+                        let familiaMostrar = inv.familiaManual || (inv.detalleFamilia && inv.detalleFamilia !== "-" ? "Tiene acompañantes" : "Ninguna (Individual)");
+                        
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="chk-invitado-familia" data-index="${index}" style="transform: scale(1.2);">
+                                </td>
+                                <td>
+                                    <strong>${inv.nombre}</strong><br>
+                                    <span style="font-size:0.8em; color:#777;">Resp: ${inv.nombreFormulario}</span>
+                                </td>
+                                <td>${inv.estado}</td>
+                                <td>
+                                    <span style="padding: 4px 8px; background: ${inv.familiaManual ? '#e3f2fd' : '#f5f5f5'}; border-radius: 4px; font-size: 0.9em;">
+                                        ${familiaMostrar}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+        
+                function crearGrupoFamiliar() {
+                    let nombreFamilia = document.getElementById("txt-nombre-familia").value.trim();
+                    if (!nombreFamilia) {
+                        alert("Por favor, ingresa un nombre para el grupo familiar.");
+                        return;
+                    }
+        
+                    let checkboxes = document.querySelectorAll(".chk-invitado-familia:checked");
+                    if (checkboxes.length === 0) {
+                        alert("Selecciona al menos a un invitado para agrupar.");
+                        return;
+                    }
+        
+                    checkboxes.forEach(chk => {
+                        let index = parseInt(chk.getAttribute("data-index"));
+                        invitadosCotejados[index].familiaManual = nombreFamilia;
+                    });
+        
+                    document.getElementById("txt-nombre-familia").value = "";
+                    alert(`Se ha creado/actualizado el grupo: ${nombreFamilia}`);
+                    
+                    // Refrescar todas las vistas
+                    renderizarTodo(); 
+                }
+        
+        
+        // =================================================================
+        // ACCIONES: EDITAR Y ELIMINAR MESAS
         // =================================================================
         
         async function eliminarMesa(nombreMesa) {
@@ -701,7 +801,7 @@
         }
 
         // =================================================================
-        // NUEVA ACCIÓN: DESCARGAR EXCEL DE INVITADOS
+        // ACCIÓN: DESCARGAR EXCEL DE INVITADOS
         // =================================================================
         
         function descargarExcelInvitados() {
@@ -733,7 +833,7 @@
         }
 
         // =================================================================
-        // NUEVA ACCIÓN: DESCARGAR PDF DE LAS MESAS (TARJETAS)
+        // ACCIÓN: DESCARGAR PDF DE LAS MESAS (TARJETAS)
         // =================================================================
         
         function descargarPDFMesas() {
