@@ -473,6 +473,7 @@
                     respuestasProcesadas.add(idx); 
                     
                     let textoAcompanantes = respForm.acompanantes ? respForm.acompanantes.toString().trim() : "";
+                    console.log(JSON.stringify(textoAcompanantes));
                     
                     // APLICAMOS LA NUEVA HERRAMIENTA AQUÍ
                     let numAcompaniantes = calcularNumeroAcompanantes(textoAcompanantes);
