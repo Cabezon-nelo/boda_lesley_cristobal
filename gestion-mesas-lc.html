@@ -572,10 +572,13 @@
                 let tieneAcompanantesTexto = limpioAcomp !== "" && limpioAcomp !== "-" && limpioAcomp !== "0" && limpioAcomp !== "no" && limpioAcomp !== "ninguno" && limpioAcomp !== "ninguna" && limpioAcomp !== "sin acompañantes";
 
                 if (tieneAcompanantesTexto) {
+                    // Reemplazamos el " | " por un salto de línea y un guión para que se vea como lista
+                    let textoFormateado = inv.detalleFamilia.split('|').map(item => `• ${item.trim()}`).join('<br>');
+                    
                     htmlAcompanantes = `
                         <div style="margin-top: 8px; padding: 8px 12px; background: #fdfbf7; border-left: 3px solid var(--color-principal); font-size: 0.85em; color: #555; border-radius: 0 4px 4px 0; line-height: 1.4;">
                             <strong>Acompañantes y Restricciones:</strong><br>
-                            ${inv.detalleFamilia}
+                            ${textoFormateado}
                         </div>
                     `;
                 }
@@ -720,18 +723,16 @@
         }
 
         // --- GESTIÓN DE GRUPOS FAMILIARES ---
-       function renderizarPestanaFamilias() {
+        function renderizarPestanaFamilias() {
             let tbody = document.getElementById("tbody-seleccion-familias");
             if (!tbody) return;
             tbody.innerHTML = "";
 
             invitadosCotejados.forEach((inv, index) => {
-                // FILTRO INTELIGENTE:
-                // 1. Debe ser "Formulario Directo" (enListaOficial === false)
-                // 2. NO debe traer acompañantes (acompaniantes === 0)
-                if (inv.enListaOficial === false && inv.acompaniantes === 0) {
+                // CORRECCIÓN: Solo validamos que sea Formulario Directo, sin importar cuántos acompañantes traiga.
+                if (inv.enListaOficial === false) {
                     
-                    let familiaMostrar = inv.familiaManual || "Ninguna (Individual)";
+                    let familiaMostrar = inv.familiaManual || (inv.acompaniantes > 0 ? "Trae acompañantes" : "Ninguna (Individual)");
                     
                     tbody.innerHTML += `
                         <tr>
@@ -864,6 +865,26 @@
                 btn.innerText = textoOriginal;
                 btn.disabled = false;
             });
+        }
+        // HERRAMIENTA: Analizador exacto basado en el separador "|"
+        function calcularNumeroAcompanantes(texto) {
+            if (!texto) return 0;
+            let t = texto.toString().trim();
+            let tLower = t.toLowerCase();
+            
+            // Filtros de vacío por si alguien no lleva acompañantes
+            if (tLower === "" || tLower === "-" || tLower === "0" || tLower === "no" || tLower === "ninguno" || tLower === "ninguna" || tLower === "sin acompañantes") return 0;
+            
+            // Si el texto es simplemente un número (ej: "2") por algún error manual previo
+            let numeroDirecto = parseInt(t);
+            if (!isNaN(numeroDirecto) && numeroDirecto > 0 && /^\d+$/.test(t)) {
+                return numeroDirecto;
+            }
+            
+            // LÓGICA PRINCIPAL: Contar los elementos separados por "|"
+            let elementos = t.split('|').map(e => e.trim()).filter(e => e.length > 0);
+            
+            return elementos.length;
         }
     </script>
 </body>
