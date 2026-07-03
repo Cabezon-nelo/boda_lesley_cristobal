@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard de Novios - Gestión de Boda</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
     <style>
         :root {
             --color-principal: #b89768;
@@ -181,6 +184,9 @@
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
 
                 <h2>Lista de Invitados Oficial vs. Respuesta</h2>
+                <div style="text-align: right; margin-bottom: 15px;">
+                    <button class="btn btn-success" onclick="descargarExcelInvitados()">📊 Descargar Lista en Excel</button>
+                </div>
                 <p><small>*Aquí se cruzan tus invitados ingresados con lo que responden en el formulario web.</small></p>
                 <table>
                     <thead>
@@ -650,7 +656,39 @@
                 alert("Error al editar la mesa.");
             }
         }
-                
+
+        // =================================================================
+        // NUEVA ACCIÓN: DESCARGAR EXCEL DE INVITADOS
+        // =================================================================
+        
+        function descargarExcelInvitados() {
+            // 1. Verificamos que haya datos para exportar
+            if (!invitadosCotejados || invitadosCotejados.length === 0) {
+                alert("Aún no hay invitados en la lista para descargar.");
+                return;
+            }
+        
+            // 2. Formateamos los datos para que las columnas en Excel se vean limpias
+            const datosParaExcel = invitadosCotejados.map(inv => ({
+                "Nombre Oficial": inv.nombre,
+                "Ingresó en Formulario": inv.nombreFormulario !== "-" ? inv.nombreFormulario : "No ha respondido",
+                "Estado de Asistencia": inv.estado,
+                "Menú Elegido": inv.menu,
+                "N° Acompañantes": inv.acompaniantes,
+                "Mesa Asignada": inv.mesaAsignada || "Sin asignar"
+            }));
+        
+            // 3. Creamos el libro de Excel y la hoja
+            const hojaDeTrabajo = XLSX.utils.json_to_sheet(datosParaExcel);
+            const libroDeExcel = XLSX.utils.book_new();
+            
+            // 4. Añadimos la hoja al libro con el nombre "Lista Oficial"
+            XLSX.utils.book_append_sheet(libroDeExcel, hojaDeTrabajo, "Lista Oficial");
+        
+            // 5. Forzamos la descarga del archivo en el navegador
+            XLSX.writeFile(libroDeExcel, "Lista_Invitados_Boda.xlsx");
+        }
+        
     </script>
 </body>
 </html>
