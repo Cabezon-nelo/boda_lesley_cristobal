@@ -300,8 +300,7 @@
         let listaOficialNombres = []; 
         let respuestasInvitados = []; 
         let invitadosCotejados = []; 
-        let mesasBD = []; 
-        let familiasTemporales = {}; 
+        let mesasBD = [];  
 
         window.onload = function() {
             const token = localStorage.getItem('token_novios'); 
@@ -498,7 +497,7 @@
                         menu: "-",
                         acompaniantes: 0,
                         detalleFamilia: "",
-                        familiaManual: familiasTemporales[nombreOficial] || "",
+                        familiaManual: respForm ? (respForm.familia || "") : "",
                         mesaAsignada: "",
                         filaExcel: null,
                         enListaOficial: true
@@ -521,7 +520,7 @@
                         menu: respForm.menu || "Estándar",
                         acompaniantes: numAcompaniantes,
                         detalleFamilia: textoAcompanantes,
-                        familiaManual: familiasTemporales[respForm.nombre] || "", 
+                        familiaManual: respForm.familia || "", 
                         mesaAsignada: respForm.mesa || "",
                         filaExcel: respForm.fila,
                         enListaOficial: false 
@@ -713,7 +712,9 @@
                 // CORRECCIÓN: Solo validamos que sea Formulario Directo, sin importar cuántos acompañantes traiga.
                 if (inv.enListaOficial === false) {
                     
-                    let familiaMostrar = inv.familiaManual || (inv.acompaniantes > 0 ? "Trae acompañantes" : "Ninguna (Individual)");
+                    let familiaMostrar = inv.familiaManual
+                        ? inv.familiaManual
+                        : (inv.acompaniantes > 0 ? "Trae acompañantes" : "Ninguna (Individual)");
                     
                     tbody.innerHTML += `
                         <tr>
