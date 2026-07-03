@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Novios - Gestión de Boda</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="login-screen">
+        <h2>Panel de Administración de los Novios</h2>
+        <input type="password" id="password-input" placeholder="Contraseña de acceso">
+        <button onclick="verificarPassword()">Ingresar al Dashboard</button>
+    </div>
+
+    <div id="panel-screen">
+        <header>
+            <h1>Panel de Control de Nuestra Boda</h1>
+        </header>
+
+        <nav>
+            <button class="nav-btn active" onclick="cambiarPestaña('tab-stats')">Estadísticas</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-lista')">Lista de Invitados</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-familias')">Gestión de Familias</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-mesas')">Crear Mesas</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-asignacion')">Asignación de Mesas</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-visual-mesas')">Plano de Mesas</button>
+        </nav>
+
+        <div class="container">
+            
+            <div id="tab-stats" class="tab-content active">
+                <h2>Resumen de Confirmaciones</h2>
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-top-color: #2196F3;">
+                        <h3>Total Invitados en Lista</h3>
+                        <p id="stat-total">0</p>
+                    </div>
+                    <div class="stat-card" style="border-top-color: #4CAF50;">
+                        <h3>Confirmados (Sí)</h3>
+                        <p id="stat-si">0</p>
+                    </div>
+                    <div class="stat-card" style="border-top-color: #F44336;">
+                        <h3>No Asistirán</h3>
+                        <p id="stat-no">0</p>
+                    </div>
+                    <div class="stat-card" style="border-top-color: #FF9800;">
+                        <h3>Pendientes</h3>
+                        <p id="stat-pendiente">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-lista" class="tab-content">
+                <h2>Agregar Invitados a la Lista Oficial (Carga Masiva)</h2>
+                <p><small>Copia la columna de nombres de tu Excel y pégala aquí. El sistema agregará un invitado por cada línea.</small></p>
+                
+                <div class="form-group" style="align-items: flex-start;">
+                    <textarea id="inv-masivo" rows="5" placeholder="Ejemplo:&#10;Juan Pérez&#10;María González&#10;Pedro Rojas" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; min-width: 250px; font-family: inherit;"></textarea>
+                    <button class="btn" onclick="agregarInvitadosMasivo()" style="height: fit-content; margin-top: 2px;">Cargar Lista</button>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+                <h2>Lista de Invitados Oficial vs. Respuesta</h2>
+                <div style="text-align: right; margin-bottom: 15px;">
+                    <button class="btn btn-success" onclick="descargarExcelInvitados()">📊 Descargar Lista en Excel</button>
+                </div>
+                <p><small>*Aquí se cruzan tus invitados ingresados con lo que responden en el formulario web.</small></p>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre Invitado</th>
+                                <th>Estado de Respuesta</th>
+                                <th>Menú Elegido</th>
+                                <th>Acompañantes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-lista-oficial"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="tab-familias" class="tab-content">
+                <h2>Crear o Modificar Grupos Familiares</h2>
+                    <p><small>Selecciona los invitados de la lista de abajo, asígnales un nombre de familia y agrúpalos para que el sistema los mueva y contabilice juntos.</small></p>
+                <div class="form-group" style="align-items:flex-end;">
+                    <div style="flex:1;">
+                        <label><strong>Familia seleccionada</strong></label>
+                        <select
+                            id="sel-familia-oficial"
+                            style="width:100%;margin-top:5px;"
+                            onchange="mostrarIntegrantesFamilia()">
+                        </select>
+                    </div>
+                    <button
+                        class="btn"
+                        onclick="crearGrupoFamiliar()">
+                        ➕ Agregar seleccionados
+                    </button>
+                </div>
+                <div
+                    id="integrantes-familia"
+                    style="
+                        margin:20px 0;
+                        padding:15px;
+                        background:#fafafa;
+                        border-left:4px solid var(--color-principal);
+                        border-radius:6px;">
+                    <strong>Integrantes actuales</strong>
+                    <div
+                        id="lista-integrantes-familia"
+                        style="margin-top:10px;">
+                        Selecciona una familia.
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+                <h3>Lista de Invitados para Agrupar</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">Seleccionar</th>
+                                <th style="width: 40%;">Invitado</th>
+                                <th style="width: 25%;">Estado</th>
+                                <th style="width: 30%;">Familia Actual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-seleccion-familias"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-mesas" class="tab-content">
+                <h2>Crear o Editar Mesas</h2>
+                <div class="form-group">
+                    <input type="text" id="mesa-nombre" placeholder="Ej: Mesa 1 / Mesa Familiares">
+                    <input type="number" id="mesa-capacidad" placeholder="Capacidad Máxima (Ej: 8)" min="1">
+                    <button class="btn" onclick="crearMesa()">Crear Mesa</button>
+                </div>
+
+                <h2>Mesas Definidas</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre / Número de Mesa</th>
+                                <th>Capacidad Máxima</th>
+                                <th>Asignados Actualmente</th>
+                                <th>Disponibilidad</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-mesas-creadas"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-asignacion" class="tab-content">
+                <h2>Asignación de Asientos (Solo Confirmados)</h2>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Invitado Principal</th>
+                                <th>Acompañantes</th>
+                                <th>Mesa Asignada</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-asignacion-mesas"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-visual-mesas" class="tab-content">
+                <h2>Plano Visual de Mesas</h2>
+                <div style="text-align: right; margin-bottom: 15px;">
+                    <button class="btn btn-success" onclick="descargarPDFMesas()">🖨️ Descargar Tarjetas en PDF</button>
+                </div>
+                <div id="galeria-mesas" class="mesa-galeria"></div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
