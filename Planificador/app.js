@@ -234,6 +234,56 @@
         }
         
         // --- RENDERIZADO VISUAL ---
+        function generarFilaInvitado(inv) {
+            let claseTag = 'tag-pendiente';
+            if (inv.estado.toLowerCase() === 'sí' || inv.estado.toLowerCase() === 'si') claseTag = 'tag-si';
+            if (inv.estado.toLowerCase() === 'no') claseTag = 'tag-no';
+
+            let etiquetaNoOficial = !inv.enListaOficial ? ` <span style="font-size:0.75em; background:#fff3e0; color:#e65100; padding:2px 6px; border-radius:4px; font-weight:bold; margin-left:5px;">Formulario Directo</span>` : '';
+
+            let htmlAcompanantes = '';
+            let limpioAcomp = inv.detalleFamilia ? inv.detalleFamilia.trim().toLowerCase() : "";
+            let tieneAcompanantesTexto = limpioAcomp !== "" && limpioAcomp !== "-" && limpioAcomp !== "0" && limpioAcomp !== "no" && limpioAcomp !== "ninguno" && limpioAcomp !== "ninguna" && limpioAcomp !== "sin acompañantes";
+
+            if (tieneAcompanantesTexto) {
+                // Reemplazamos el " | " por un salto de línea y un guión para que se vea como lista
+                let textoFormateado = inv.detalleFamilia.split('|').map(item => `• ${item.trim()}`).join('<br>');
+
+                htmlAcompanantes = `
+                    <div style="margin-top: 8px; padding: 8px 12px; background: #fdfbf7; border-left: 3px solid var(--color-principal); font-size: 0.85em; color: #555; border-radius: 0 4px 4px 0; line-height: 1.4;">
+                        <strong>Acompañantes y Restricciones:</strong><br>
+                        ${textoFormateado}
+                    </div>
+                `;
+            }
+
+            return `
+                <tr>
+                    <td>
+                        <strong>${inv.nombre}</strong>${etiquetaNoOficial}<br>
+                        <small style="color:#888;">Ingresó como: ${inv.nombreFormulario}</small>
+                        ${htmlAcompanantes}
+                    </td>
+                    <td><span class="tag ${claseTag}">${inv.estado}</span></td>
+                    <td>${inv.menu}</td>
+                    <td>${inv.acompaniantes}</td>
+                </tr>
+            `;
+        }
+
+        function generarResumenFamilia(integrantes) {
+            const esConfirmado = estado => estado.toLowerCase() === 'sí' || estado.toLowerCase() === 'si';
+            const confirmados = integrantes.filter(i => esConfirmado(i.estado)).length;
+            const pendientes = integrantes.filter(i => i.estado.toLowerCase() === 'pendiente').length;
+            const noAsisten = integrantes.filter(i => i.estado.toLowerCase() === 'no').length;
+
+            let partes = [];
+            if (confirmados) partes.push(`✔ ${confirmados} confirmado${confirmados !== 1 ? 's' : ''}`);
+            if (pendientes) partes.push(`⏳ ${pendientes} pendiente${pendientes !== 1 ? 's' : ''}`);
+            if (noAsisten) partes.push(`✖ ${noAsisten} no asiste${noAsisten !== 1 ? 'n' : ''}`);
+            return partes.join(' · ') || 'Sin respuestas';
+        }
+
         function renderizarTodo() {
             // --- ESTADÍSTICAS ---
             document.getElementById('stat-total').innerText = invitadosCotejados.length;
@@ -241,46 +291,50 @@
             document.getElementById('stat-no').innerText = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'no').length;
             document.getElementById('stat-pendiente').innerText = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'pendiente').length;
         
-            // --- TABLA 1: LISTA GENERAL DE INVITADOS ---
+            // --- TABLA 1: LISTA GENERAL DE INVITADOS (agrupada por familia) ---
             const tbodyLista = document.getElementById('tabla-lista-oficial');
             tbodyLista.innerHTML = '';
+
+            let familiasLista = {};
+            let individualesLista = [];
             invitadosCotejados.forEach(inv => {
-                let claseTag = 'tag-pendiente';
-                if (inv.estado.toLowerCase() === 'sí' || inv.estado.toLowerCase() === 'si') claseTag = 'tag-si';
-                if (inv.estado.toLowerCase() === 'no') claseTag = 'tag-no';
-        
-                let etiquetaNoOficial = !inv.enListaOficial ? ` <span style="font-size:0.75em; background:#fff3e0; color:#e65100; padding:2px 6px; border-radius:4px; font-weight:bold; margin-left:5px;">Formulario Directo</span>` : '';
+                // Los nombres tipo "Familia X" son solo la etiqueta usada en el selector de familias (ver cargarSelectorFamilias), no un invitado real
+                let esEtiquetaFamilia = inv.nombre.toLowerCase().trim().startsWith('familia');
+                if (esEtiquetaFamilia) return;
 
-                let htmlAcompanantes = '';
-                let limpioAcomp = inv.detalleFamilia ? inv.detalleFamilia.trim().toLowerCase() : "";
-                let tieneAcompanantesTexto = limpioAcomp !== "" && limpioAcomp !== "-" && limpioAcomp !== "0" && limpioAcomp !== "no" && limpioAcomp !== "ninguno" && limpioAcomp !== "ninguna" && limpioAcomp !== "sin acompañantes";
-
-                if (tieneAcompanantesTexto) {
-                    // Reemplazamos el " | " por un salto de línea y un guión para que se vea como lista
-                    let textoFormateado = inv.detalleFamilia.split('|').map(item => `• ${item.trim()}`).join('<br>');
-                    
-                    htmlAcompanantes = `
-                        <div style="margin-top: 8px; padding: 8px 12px; background: #fdfbf7; border-left: 3px solid var(--color-principal); font-size: 0.85em; color: #555; border-radius: 0 4px 4px 0; line-height: 1.4;">
-                            <strong>Acompañantes y Restricciones:</strong><br>
-                            ${textoFormateado}
-                        </div>
-                    `;
+                if (inv.familiaManual) {
+                    if (!familiasLista[inv.familiaManual]) familiasLista[inv.familiaManual] = [];
+                    familiasLista[inv.familiaManual].push(inv);
+                } else {
+                    individualesLista.push(inv);
                 }
+            });
+
+            Object.keys(familiasLista).forEach(nombreFamilia => {
+                let integrantes = familiasLista[nombreFamilia];
+                let filasIntegrantes = integrantes.map(inv => generarFilaInvitado(inv)).join('');
 
                 tbodyLista.innerHTML += `
                     <tr>
-                        <td>
-                            <strong>${inv.nombre}</strong>${etiquetaNoOficial}<br>
-                            <small style="color:#888;">Ingresó como: ${inv.nombreFormulario}</small>
-                            ${htmlAcompanantes}
+                        <td colspan="4" style="padding: 0; border-bottom: none;">
+                            <details style="margin: 12px 0; border: 1px solid #eee; border-radius: 8px; overflow: hidden;">
+                                <summary style="cursor: pointer; padding: 12px 15px; background: #fafafa; font-weight: bold;">
+                                    👪 ${nombreFamilia}
+                                    <span style="font-weight: normal; font-size: 0.85em; color: #666; margin-left: 8px;">${generarResumenFamilia(integrantes)}</span>
+                                </summary>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tbody>${filasIntegrantes}</tbody>
+                                </table>
+                            </details>
                         </td>
-                        <td><span class="tag ${claseTag}">${inv.estado}</span></td>
-                        <td>${inv.menu}</td>
-                        <td>${inv.acompaniantes}</td>
                     </tr>
                 `;
             });
-            
+
+            individualesLista.forEach(inv => {
+                tbodyLista.innerHTML += generarFilaInvitado(inv);
+            });
+
             let soloConfirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si');
         
             // --- TABLA 2: GESTIÓN DE MESAS DEFINIDAS ---
