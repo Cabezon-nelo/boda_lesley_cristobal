@@ -1,10 +1,13 @@
         // --- CONFIGURACIÓN Y VARIABLES GLOBALES ---
         const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbzGuFMSYs5zF-xLZ0ADeDxjhW5Ay0jMPH8e6FRil5fX59uJC_yPYx_b2alyg3rCX0bSIw/exec"; 
         
-        let listaOficialNombres = []; 
-        let respuestasInvitados = []; 
-        let invitadosCotejados = []; 
-        let mesasBD = [];  
+        let listaOficialNombres = [];
+        let respuestasInvitados = [];
+        let invitadosCotejados = [];
+        let mesasBD = [];
+        let familiasDisponibles = [];
+        let estructuraFamilias = {};
+        let invitadosIndividuales = [];
 
         window.onload = function() {
             const token = localStorage.getItem('token_novios'); 
@@ -155,14 +158,27 @@
             if (!texto) return "";
             return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
         }
-        
+
+        // Los nombres tipo "Familia X" son la etiqueta que se usa para agrupar invitados (ver selector de familias),
+        // nunca un invitado real, por lo que nunca deben entrar a invitadosCotejados.
+        function esNombreContenedorFamilia(nombre) {
+            return !!nombre && nombre.toLowerCase().trim().startsWith('familia');
+        }
+
         function realizarCotejo() {
             invitadosCotejados = [];
+            familiasDisponibles = [];
             let respuestasProcesadas = new Set();
-        
+
             // FASE 1: Recorrer la lista oficial y emparejar
             listaOficialNombres.forEach(nombreOficial => {
                 if (!nombreOficial) return;
+
+                if (esNombreContenedorFamilia(nombreOficial)) {
+                    familiasDisponibles.push(nombreOficial);
+                    return;
+                }
+
                 let oficialLimpio = limpiarTexto(nombreOficial);
         
                 let respForm = respuestasInvitados.find((r, index) => {
@@ -227,12 +243,27 @@
                         familiaManual: respForm.familia || "", 
                         mesaAsignada: respForm.mesa || "",
                         filaExcel: respForm.fila,
-                        enListaOficial: false 
+                        enListaOficial: false
                     });
                 }
             });
+
+            // FASE 3: Derivar la estructura de familias e individuales a partir del cotejo,
+            // para que el render ya no tenga que volver a agrupar invitados.
+            estructuraFamilias = {};
+            invitadosIndividuales = [];
+            invitadosCotejados.forEach(inv => {
+                if (inv.familiaManual) {
+                    if (!estructuraFamilias[inv.familiaManual]) {
+                        estructuraFamilias[inv.familiaManual] = { integrantes: [] };
+                    }
+                    estructuraFamilias[inv.familiaManual].integrantes.push(inv);
+                } else {
+                    invitadosIndividuales.push(inv);
+                }
+            });
         }
-        
+
         // --- RENDERIZADO VISUAL ---
         function generarFilaInvitado(inv) {
             let claseTag = 'tag-pendiente';
@@ -292,26 +323,13 @@
             document.getElementById('stat-pendiente').innerText = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'pendiente').length;
         
             // --- TABLA 1: LISTA GENERAL DE INVITADOS (agrupada por familia) ---
+            // La agrupación ya viene resuelta desde realizarCotejo() en estructuraFamilias / invitadosIndividuales;
+            // aquí solo se pinta.
             const tbodyLista = document.getElementById('tabla-lista-oficial');
             tbodyLista.innerHTML = '';
 
-            let familiasLista = {};
-            let individualesLista = [];
-            invitadosCotejados.forEach(inv => {
-                // Los nombres tipo "Familia X" son solo la etiqueta usada en el selector de familias (ver cargarSelectorFamilias), no un invitado real
-                let esEtiquetaFamilia = inv.nombre.toLowerCase().trim().startsWith('familia');
-                if (esEtiquetaFamilia) return;
-
-                if (inv.familiaManual) {
-                    if (!familiasLista[inv.familiaManual]) familiasLista[inv.familiaManual] = [];
-                    familiasLista[inv.familiaManual].push(inv);
-                } else {
-                    individualesLista.push(inv);
-                }
-            });
-
-            Object.keys(familiasLista).forEach(nombreFamilia => {
-                let integrantes = familiasLista[nombreFamilia];
+            Object.keys(estructuraFamilias).forEach(nombreFamilia => {
+                let integrantes = estructuraFamilias[nombreFamilia].integrantes;
                 let filasIntegrantes = integrantes.map(inv => generarFilaInvitado(inv)).join('');
 
                 tbodyLista.innerHTML += `
@@ -331,7 +349,7 @@
                 `;
             });
 
-            individualesLista.forEach(inv => {
+            invitadosIndividuales.forEach(inv => {
                 tbodyLista.innerHTML += generarFilaInvitado(inv);
             });
 
@@ -500,16 +518,12 @@
                 let selector=document.getElementById("sel-familia-oficial");
                 if(!selector) return;
                 selector.innerHTML="";
-                listaOficialNombres.forEach(nombre=>{
-                    if(
-                        nombre.toLowerCase().startsWith("familia")
-                    ){
-                        selector.innerHTML+=`
-                            <option value="${nombre}">
-                                ${nombre}
-                            </option>
-                        `;
-                    }
+                familiasDisponibles.forEach(nombre=>{
+                    selector.innerHTML+=`
+                        <option value="${nombre}">
+                            ${nombre}
+                        </option>
+                    `;
                 });
             }
             async function crearGrupoFamiliar() {
@@ -539,6 +553,7 @@
                     })
                 });
                 await cargarDatosDesdeExcel();
+                document.querySelectorAll(".chk-invitado-familia").forEach(c => c.checked = false);
                 alert(`Grupo "${nombreFamilia}" guardado correctamente.`);
             } catch (e) {
                 alert("No fue posible guardar la familia.");
@@ -665,9 +680,7 @@
                 contenedor.innerHTML="Sin familia seleccionada.";
                 return;
             }
-            let integrantes=invitadosCotejados.filter(inv=>{
-                return inv.familiaManual===familia;
-            });
+            let integrantes = estructuraFamilias[familia] ? estructuraFamilias[familia].integrantes : [];
             if(integrantes.length===0){
                 contenedor.innerHTML=`
                     <span style="color:#888;">
