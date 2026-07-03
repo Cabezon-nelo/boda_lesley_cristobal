@@ -457,7 +457,7 @@
             invitadosCotejados = [];
             let respuestasProcesadas = new Set();
         
-            // FASE 1: Recorrer la lista oficial y emparejar con las respuestas existentes
+            // FASE 1: Recorrer la lista oficial y emparejar
             listaOficialNombres.forEach(nombreOficial => {
                 if (!nombreOficial) return;
                 let oficialLimpio = limpiarTexto(nombreOficial);
@@ -473,20 +473,9 @@
                     respuestasProcesadas.add(idx); 
                     
                     let textoAcompanantes = respForm.acompanantes ? respForm.acompanantes.toString().trim() : "";
-                    let textoLimpio = textoAcompanantes.toLowerCase();
                     
-                    // PROCESADOR INTELIGENTE DE CONTEO DE ACOMPAÑANTES
-                    let numAcompaniantes = 0;
-                    if (textoLimpio !== "" && textoLimpio !== "-" && textoLimpio !== "0" && textoLimpio !== "no" && textoLimpio !== "ninguno" && textoLimpio !== "ninguna" && textoLimpio !== "sin acompañantes") {
-                        let numeroDirecto = parseInt(textoAcompanantes);
-                        if (!isNaN(numeroDirecto) && numeroDirecto > 0) {
-                            numAcompaniantes = numeroDirecto;
-                        } else {
-                            // Si ingresaron texto descriptivo con nombres, contamos basándonos en separadores comunes
-                            let elementos = textoAcompanantes.split(/[\n,\;\/]+/).map(e => e.trim()).filter(e => e.length > 2);
-                            numAcompaniantes = elementos.length > 0 ? elementos.length : 1;
-                        }
-                    }
+                    // APLICAMOS LA NUEVA HERRAMIENTA AQUÍ
+                    let numAcompaniantes = calcularNumeroAcompanantes(textoAcompanantes);
                     
                     invitadosCotejados.push({
                         nombre: nombreOficial, 
@@ -516,22 +505,13 @@
                 }
             });
         
-            // FASE 2: Capturar respuestas directas que quedaron sueltas o familias nuevas
+            // FASE 2: Capturar respuestas directas (sin estar en lista oficial)
             respuestasInvitados.forEach((respForm, index) => {
                 if (!respuestasProcesadas.has(index)) { 
                     let textoAcompanantes = respForm.acompanantes ? respForm.acompanantes.toString().trim() : "";
-                    let textoLimpio = textoAcompanantes.toLowerCase();
                     
-                    let numAcompaniantes = 0;
-                    if (textoLimpio !== "" && textoLimpio !== "-" && textoLimpio !== "0" && textoLimpio !== "no" && textoLimpio !== "ninguno" && textoLimpio !== "ninguna" && textoLimpio !== "sin acompañantes") {
-                        let numeroDirecto = parseInt(textoAcompanantes);
-                        if (!isNaN(numeroDirecto) && numeroDirecto > 0) {
-                            numAcompaniantes = numeroDirecto;
-                        } else {
-                            let elementos = textoAcompanantes.split(/[\n,\;\/]+/).map(e => e.trim()).filter(e => e.length > 2);
-                            numAcompaniantes = elementos.length > 0 ? elementos.length : 1;
-                        }
-                    }
+                    // APLICAMOS LA NUEVA HERRAMIENTA AQUÍ
+                    let numAcompaniantes = calcularNumeroAcompanantes(textoAcompanantes);
                     
                     invitadosCotejados.push({
                         nombre: respForm.nombre, 
