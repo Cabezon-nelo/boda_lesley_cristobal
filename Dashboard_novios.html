@@ -6,6 +6,7 @@
     <title>Dashboard de Novios - Gestión de Boda</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
@@ -243,6 +244,9 @@
             </div>
             <div id="tab-visual-mesas" class="tab-content">
                 <h2>Plano Visual de Mesas</h2>
+                <div style="text-align: right; margin-bottom: 15px;">
+                    <button class="btn btn-success" onclick="descargarPDFMesas()">🖨️ Descargar Tarjetas en PDF</button>
+                </div>
                 <div id="galeria-mesas" class="mesa-galeria">
                     </div>
             </div>
@@ -687,6 +691,48 @@
         
             // 5. Forzamos la descarga del archivo en el navegador
             XLSX.writeFile(libroDeExcel, "Lista_Invitados_Boda.xlsx");
+        }
+
+        // =================================================================
+        // NUEVA ACCIÓN: DESCARGAR PDF DE LAS MESAS (TARJETAS)
+        // =================================================================
+        
+        function descargarPDFMesas() {
+            const contenedorMesas = document.getElementById('galeria-mesas');
+        
+            // 1. Verificamos que haya mesas creadas y renderizadas
+            if (!contenedorMesas || contenedorMesas.innerHTML.trim() === '') {
+                alert("Aún no hay mesas en el plano para descargar.");
+                return;
+            }
+        
+            // 2. Cambiamos el texto del botón para dar feedback de que está cargando
+            const btn = document.querySelector('button[onclick="descargarPDFMesas()"]');
+            const textoOriginal = btn.innerText;
+            btn.innerText = "Generando PDF... ⏳";
+            btn.disabled = true;
+        
+            // 3. Configuramos las opciones del PDF
+            const opcionesPDF = {
+                margin:       10, // Margen de la hoja en milímetros
+                filename:     'Tarjetas_de_Mesas_Boda.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true }, // Mayor escala para que el texto se vea nítido
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }, // Hoja tamaño Carta/A4
+                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] } // Evita que una tarjeta quede cortada por la mitad entre dos páginas
+            };
+        
+            // 4. Ejecutamos la creación del PDF
+            html2pdf().set(opcionesPDF).from(contenedorMesas).save().then(() => {
+                // Devolvemos el botón a la normalidad cuando termine
+                btn.innerText = textoOriginal;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error("Error al generar el PDF:", err);
+                alert("Hubo un problema al generar el documento.");
+                btn.innerText = textoOriginal;
+                btn.disabled = false;
+            });
         }
         
     </script>
