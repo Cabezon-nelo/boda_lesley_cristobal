@@ -212,6 +212,7 @@
                             <th>Capacidad Máxima</th>
                             <th>Asignados Actualmente</th>
                             <th>Disponibilidad</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-mesas-creadas">
@@ -267,7 +268,7 @@
         }
         
         // --- CONFIGURACIÓN ---
-        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbwCJv0GZfk6tugF174CcY9LBEPqhm1-Rs8OT0Nkjs0QyAr3IhF4K1Spc-dYE2Z_DzN1YA/exec"; 
+        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbx7y8PFs1YIOACM_roJCikPS85TrqN0EcgETKmZ1Kw_wObnu-oql8B6fYce_OuwtMgI7Q/exec"; 
         
         let listaOficialNombres = []; 
         let respuestasInvitados = []; 
@@ -519,6 +520,10 @@
                         <td>${mesa.capacidad}</td>
                         <td>${asignadosAqui}</td>
                         <td>${disponible <= 0 ? '❌ Lleno' : disponible}</td>
+                        <td>
+                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em;" onclick="editarMesa('${mesa.nombre}', ${mesa.capacidad})">✏️ Editar</button>
+                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background-color: #F44336;" onclick="eliminarMesa('${mesa.nombre}')">🗑️ Eliminar</button>
+                        </td>
                     </tr>
                 `;
             });
@@ -602,7 +607,50 @@
                 });
             }
         }
+
+        // =================================================================
+        // NUEVAS ACCIONES: EDITAR Y ELIMINAR MESAS
+        // =================================================================
         
+        async function eliminarMesa(nombreMesa) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar la mesa "${nombreMesa}"? (Quienes estén asignados aquí deberán ser reasignados).`)) return;
+        
+            try {
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({ accion: 'eliminar_mesa', nombreMesa: nombreMesa })
+                });
+                alert(`Mesa "${nombreMesa}" eliminada.`);
+                await cargarDatosDesdeExcel();
+            } catch (e) {
+                alert("Error al eliminar la mesa.");
+            }
+        }
+        
+        async function editarMesa(nombreOriginal, capacidadOriginal) {
+            let nuevoNombre = prompt("Modifica el nombre de la mesa:", nombreOriginal);
+            if (!nuevoNombre) return; // Si el usuario cancela
+        
+            let nuevaCapacidad = prompt("Modifica la capacidad máxima:", capacidadOriginal);
+            if (!nuevaCapacidad || isNaN(nuevaCapacidad)) return;
+        
+            try {
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        accion: 'editar_mesa', 
+                        nombreOriginal: nombreOriginal,
+                        nuevoNombre: nuevoNombre.trim(),
+                        nuevaCapacidad: parseInt(nuevaCapacidad)
+                    })
+                });
+                alert(`Mesa actualizada con éxito.`);
+                await cargarDatosDesdeExcel();
+            } catch (e) {
+                alert("Error al editar la mesa.");
+            }
+        }
+                
     </script>
 </body>
 </html>
