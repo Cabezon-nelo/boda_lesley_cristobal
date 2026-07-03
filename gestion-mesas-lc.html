@@ -850,21 +850,15 @@
         function calcularNumeroAcompanantes(texto) {
             if (!texto) return 0;
             let t = texto.toString().trim();
-            let tLower = t.toLowerCase();
             
-            // Filtros de vacío por si alguien no lleva acompañantes
-            if (tLower === "" || tLower === "-" || tLower === "0" || tLower === "no" || tLower === "ninguno" || tLower === "ninguna" || tLower === "sin acompañantes") return 0;
+            // Si el texto está vacío o no es válido, retorna 0
+            if (t === "" || t === "-" || t.toLowerCase() === "no" || t.toLowerCase() === "ninguno") return 0;
             
-            // Si el texto es simplemente un número (ej: "2") por algún error manual previo
-            let numeroDirecto = parseInt(t);
-            if (!isNaN(numeroDirecto) && numeroDirecto > 0 && /^\d+$/.test(t)) {
-                return numeroDirecto;
-            }
+            // Contamos cuántas veces aparece el separador "|" y sumamos 1
+            // Ejemplo: "A | B | C" tiene 2 barras, 2+1 = 3 personas.
+            let count = (t.match(/\|/g) || []).length + 1;
             
-            // LÓGICA PRINCIPAL: Contar los elementos separados por "|"
-            let elementos = t.split('|').map(e => e.trim()).filter(e => e.length > 0);
-            
-            return elementos.length;
+            return count;
         }
     </script>
 </body>
