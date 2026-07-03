@@ -485,7 +485,7 @@
                         menu: respForm.menu || "Estándar",
                         acompaniantes: numAcompaniantes,
                         detalleFamilia: textoAcompanantes,
-                        familiaManual: familiasTemporales[nombreOficial] || "", 
+                        familiaManual: respForm.familia || "", 
                         mesaAsignada: respForm.mesa || "",
                         filaExcel: respForm.fila,
                         enListaOficial: true
@@ -736,23 +736,35 @@
             });
         }
 
-        function crearGrupoFamiliar() {
+            async function crearGrupoFamiliar() {
             let nombreFamilia = document.getElementById("txt-nombre-familia").value.trim();
-            if (!nombreFamilia) return alert("Por favor, ingresa un nombre para el grupo familiar.");
-
+            if (!nombreFamilia)
+                return alert("Por favor, ingresa un nombre para el grupo familiar.");
             let checkboxes = document.querySelectorAll(".chk-invitado-familia:checked");
-            if (checkboxes.length === 0) return alert("Selecciona al menos a un invitado para agrupar.");
-
+            if (checkboxes.length === 0)
+                return alert("Selecciona al menos un invitado.");
+            let filas = [];
             checkboxes.forEach(chk => {
-                let index = parseInt(chk.getAttribute("data-index"));
+                let index = parseInt(chk.dataset.index);
                 let invitado = invitadosCotejados[index];
-                invitado.familiaManual = nombreFamilia;
-                familiasTemporales[invitado.nombre] = nombreFamilia; 
+                if (invitado.filaExcel)
+                    filas.push(invitado.filaExcel);
             });
-
-            document.getElementById("txt-nombre-familia").value = "";
-            alert(`Se ha creado/actualizado el grupo: ${nombreFamilia}`);
-            renderizarTodo(); 
+            try {        
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        accion: "guardar_familia",
+                        familia: nombreFamilia,
+                        filas: filas
+                    })
+                });
+                document.getElementById("txt-nombre-familia").value = "";
+                await cargarDatosDesdeExcel();
+                alert(`Grupo "${nombreFamilia}" guardado correctamente.`);
+            } catch (e) {
+                alert("No fue posible guardar la familia.");
+            }
         }
 
         // --- ACCIONES DE MESAS ---
