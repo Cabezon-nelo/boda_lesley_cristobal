@@ -544,19 +544,26 @@
             return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
         }
         
-        function realizarCotejo() {
+       function realizarCotejo() {
             invitadosCotejados = [];
+            // Usaremos un Set para registrar qué respuestas ya fueron enlazadas con la lista oficial
+            let respuestasProcesadas = new Set();
         
+            // FASE 1: Recorrer la lista oficial y emparejar con las respuestas existentes
             listaOficialNombres.forEach(nombreOficial => {
                 if (!nombreOficial) return;
                 let oficialLimpio = limpiarTexto(nombreOficial);
         
-                let respForm = respuestasInvitados.find(r => {
+                let respForm = respuestasInvitados.find((r, index) => {
+                    if (respuestasProcesadas.has(index)) return false; // Evita duplicar la misma respuesta
                     let respLimpia = limpiarTexto(r.nombre);
                     return oficialLimpio.includes(respLimpia) || respLimpia.includes(oficialLimpio);
                 });
         
                 if (respForm) {
+                    let idx = respuestasInvitados.indexOf(respForm);
+                    respuestasProcesadas.add(idx); // Marcamos esta respuesta como "ya utilizada"
+                    
                     let numAcompaniantes = parseInt(respForm.acompanantes) || 0;
                     let textoAcompanantes = respForm.acompanantes ? respForm.acompanantes.toString() : "";
                     
@@ -567,9 +574,10 @@
                         menu: respForm.menu || "Estándar",
                         acompaniantes: numAcompaniantes,
                         detalleFamilia: textoAcompanantes,
-                        familiaManual: "", // <--- NUEVO CAMPO AÑADIDO
+                        familiaManual: "",
                         mesaAsignada: respForm.mesa || "",
-                        filaExcel: respForm.fila
+                        filaExcel: respForm.fila,
+                        enListaOficial: true // <-- Saber que sí venía en tu Excel base
                     });
                 } else {
                     invitadosCotejados.push({
@@ -579,9 +587,31 @@
                         menu: "-",
                         acompaniantes: 0,
                         detalleFamilia: "",
-                        familiaManual: "", // <--- NUEVO CAMPO AÑADIDO
+                        familiaManual: "",
                         mesaAsignada: "",
-                        filaExcel: null
+                        filaExcel: null,
+                        enListaOficial: true
+                    });
+                }
+            });
+        
+            // FASE 2: Capturar respuestas que NO se asociaron a la lista oficial (Invitados Directos / Familias nuevas)
+            respuestasInvitados.forEach((respForm, index) => {
+                if (!respuestasProcesadas.has(index)) { // Si esta respuesta quedó huérfana
+                    let numAcompaniantes = parseInt(respForm.acompanantes) || 0;
+                    let textoAcompanantes = respForm.acompanantes ? respForm.acompanantes.toString() : "";
+                    
+                    invitadosCotejados.push({
+                        nombre: respForm.nombre, // Usamos directamente el nombre con el que se registró
+                        nombreFormulario: respForm.nombre, 
+                        estado: respForm.asistencia,
+                        menu: respForm.menu || "Estándar",
+                        acompaniantes: numAcompaniantes,
+                        detalleFamilia: textoAcompanantes,
+                        familiaManual: "",
+                        mesaAsignada: respForm.mesa || "",
+                        filaExcel: respForm.fila,
+                        enListaOficial: false // <-- Bandera: entró de manera externa/directa
                     });
                 }
             });
@@ -606,10 +636,13 @@
                 if (inv.estado.toLowerCase() === 'sí' || inv.estado.toLowerCase() === 'si') claseTag = 'tag-si';
                 if (inv.estado.toLowerCase() === 'no') claseTag = 'tag-no';
         
+                // Si no estaba en la lista oficial, le ponemos una etiqueta de aviso
+                let etiquetaNoOficial = !inv.enListaOficial ? ` <span style="font-size:0.75em; background:#fff3e0; color:#e65100; padding:2px 6px; border-radius:4px; font-weight:bold; margin-left:5px;">Formulario Directo</span>` : '';
+
                 tbodyLista.innerHTML += `
                     <tr>
                         <td>
-                            <strong>${inv.nombre}</strong><br>
+                            <strong>${inv.nombre}</strong>${etiquetaNoOficial}<br>
                             <small style="color:#888;">Ingresó como: ${inv.nombreFormulario}</small>
                         </td>
                         <td><span class="tag ${claseTag}">${inv.estado}</span></td>
@@ -618,7 +651,6 @@
                     </tr>
                 `;
             });
-        
             let soloConfirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si');
         
             // --- TABLA 2: GESTIÓN DE MESAS DEFINIDAS ---
