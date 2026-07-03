@@ -210,16 +210,36 @@
             
             <div id="tab-familias" class="tab-content">
                 <h2>Crear o Modificar Grupos Familiares</h2>
-                <p><small>Selecciona los invitados de la lista de abajo, asígnales un nombre de familia y agrúpalos para que el sistema los mueva y contabilice juntos.</small></p>
-                
-                <div class="form-group" style="align-items: flex-end;">
-                    <div style="flex: 1;">
-                        <label><strong>Nombre del Grupo Familiar:</strong></label>
-                        <input type="text" id="txt-nombre-familia" placeholder="Ej: Familia Olmedo Pavez" style="width: 100%; margin-top: 5px;">
+                    <p><small>Selecciona los invitados de la lista de abajo, asígnales un nombre de familia y agrúpalos para que el sistema los mueva y contabilice juntos.</small></p>
+                <div class="form-group" style="align-items:flex-end;">
+                    <div style="flex:1;">
+                        <label><strong>Familia seleccionada</strong></label>
+                        <select
+                            id="sel-familia-oficial"
+                            style="width:100%;margin-top:5px;"
+                            onchange="mostrarIntegrantesFamilia()">
+                        </select>
                     </div>
-                    <button class="btn btn-primary" onclick="crearGrupoFamiliar()" style="height: fit-content; margin-bottom: 2px;">
-                        📦 Agrupar Seleccionados
+                    <button
+                        class="btn"
+                        onclick="crearGrupoFamiliar()">
+                        ➕ Agregar seleccionados
                     </button>
+                </div>
+                <div
+                    id="integrantes-familia"
+                    style="
+                        margin:20px 0;
+                        padding:15px;
+                        background:#fafafa;
+                        border-left:4px solid var(--color-principal);
+                        border-radius:6px;">
+                    <strong>Integrantes actuales</strong>
+                    <div
+                        id="lista-integrantes-familia"
+                        style="margin-top:10px;">
+                        Selecciona una familia.
+                    </div>
                 </div>
 
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
@@ -700,6 +720,8 @@
             }
 
             renderizarPestanaFamilias();
+            cargarSelectorFamilias();
+            mostrarIntegrantesFamilia();
         }
 
         // --- GESTIÓN DE GRUPOS FAMILIARES ---
@@ -736,7 +758,22 @@
                 }
             });
         }
-
+            function cargarSelectorFamilias(){
+                let selector=document.getElementById("sel-familia-oficial");
+                if(!selector) return;
+                selector.innerHTML="";
+                listaOficialNombres.forEach(nombre=>{
+                    if(
+                        nombre.toLowerCase().startsWith("familia")
+                    ){
+                        selector.innerHTML+=`
+                            <option value="${nombre}">
+                                ${nombre}
+                            </option>
+                        `;
+                    }
+                });
+            }
             async function crearGrupoFamiliar() {
             let nombreFamilia = document.getElementById("txt-nombre-familia").value.trim();
             if (!nombreFamilia)
@@ -879,6 +916,36 @@
                 .filter(p => p.trim() !== "");
             console.log(personas);
             return personas.length;
+        }
+
+        function mostrarIntegrantesFamilia(){
+            let familia=document.getElementById("sel-familia-oficial").value;
+            let contenedor=document.getElementById("lista-integrantes-familia");
+            if(!familia){
+                contenedor.innerHTML="Sin familia seleccionada.";
+                return;
+            }
+            let integrantes=invitadosCotejados.filter(inv=>{
+                return inv.familiaManual===familia;
+            });
+            if(integrantes.length===0){
+                contenedor.innerHTML=`
+                    <span style="color:#888;">
+                        Esta familia aún no tiene integrantes asociados.
+                    </span>
+                `;
+                return;
+            }
+            contenedor.innerHTML="";
+            integrantes.forEach(inv=>{
+                contenedor.innerHTML+=`
+                    <div style="
+                        padding:6px 0;
+                        border-bottom:1px solid #eee;">
+                        ✔ ${inv.nombre}
+                    </div>
+                `;
+            });
         }
     </script>
 </body>
