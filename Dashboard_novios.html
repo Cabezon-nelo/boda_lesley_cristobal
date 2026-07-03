@@ -88,7 +88,32 @@
         .btn-success { background: #4CAF50; }
         .btn-success:hover { background: #45a049; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+       /* --- FIX PARA MÓVILES (TABLAS Y FORMULARIOS) --- */
+        
+        /* 1. Contenedor para hacer las tablas deslizables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Hace que el deslizamiento sea fluido en iPhone */
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* 2. No colapso de tablas */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 650px; /* Fuerza el scroll horizontal en pantallas pequeñas */
+        }
+
+        /* 3. No romper con imputs */
+        input, select, textarea {
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+
+         /* --- Continuación Codigo --- */
+        
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #fafafa; color: #555; font-size: 0.85em; text-transform: uppercase; }
         
@@ -229,6 +254,7 @@
                     <button class="btn btn-success" onclick="descargarExcelInvitados()">📊 Descargar Lista en Excel</button>
                 </div>
                 <p><small>*Aquí se cruzan tus invitados ingresados con lo que responden en el formulario web.</small></p>
+                <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
@@ -241,8 +267,9 @@
                     <tbody id="tabla-lista-oficial">
                         </tbody>
                 </table>
+                </div>
             </div>
-
+    
             <div id="tab-mesas" class="tab-content">
                 <h2>Crear o Editar Mesas</h2>
                 <div class="form-group">
@@ -252,6 +279,7 @@
                 </div>
 
                 <h2>Mesas Definidas</h2>
+                <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
@@ -265,10 +293,13 @@
                     <tbody id="tabla-mesas-creadas">
                         </tbody>
                 </table>
+                </div>
+                
             </div>
 
             <div id="tab-asignacion" class="tab-content">
                 <h2>Asignación de Asientos (Solo Confirmados)</h2>
+                <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
@@ -281,6 +312,7 @@
                     <tbody id="tabla-asignacion-mesas">
                         </tbody>
                 </table>
+                </div>
             </div>
             <div id="tab-visual-mesas" class="tab-content">
                 <h2>Plano Visual de Mesas</h2>
@@ -308,6 +340,7 @@
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
 
                 <h3>Lista de Invitados para Agrupar</h3>
+                <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
@@ -320,6 +353,7 @@
                     <tbody id="tbody-seleccion-familias">
                     </tbody>
                 </table>
+                </div>
             </div>
             
         </div>
