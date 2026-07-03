@@ -767,62 +767,61 @@
         }
 
         // =================================================================
-        // Acción: Gestion de familias
+        // --- FUNCIONES DE GESTIÓN DE FAMILIAS ---
         // =================================================================
+        
         function renderizarPestanaFamilias() {
-                    let tbody = document.getElementById("tbody-seleccion-familias");
-                    if (!tbody) return;
-                    tbody.innerHTML = "";
-        
-                    invitadosCotejados.forEach((inv, index) => {
-                        let familiaMostrar = inv.familiaManual || (inv.detalleFamilia && inv.detalleFamilia !== "-" ? "Tiene acompañantes" : "Ninguna (Individual)");
-                        
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>
-                                    <input type="checkbox" class="chk-invitado-familia" data-index="${index}" style="transform: scale(1.2);">
-                                </td>
-                                <td>
-                                    <strong>${inv.nombre}</strong><br>
-                                    <span style="font-size:0.8em; color:#777;">Resp: ${inv.nombreFormulario}</span>
-                                </td>
-                                <td>${inv.estado}</td>
-                                <td>
-                                    <span style="padding: 4px 8px; background: ${inv.familiaManual ? '#e3f2fd' : '#f5f5f5'}; border-radius: 4px; font-size: 0.9em;">
-                                        ${familiaMostrar}
-                                    </span>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
-        
-                function crearGrupoFamiliar() {
-                    let nombreFamilia = document.getElementById("txt-nombre-familia").value.trim();
-                    if (!nombreFamilia) {
-                        alert("Por favor, ingresa un nombre para el grupo familiar.");
-                        return;
-                    }
-        
-                    let checkboxes = document.querySelectorAll(".chk-invitado-familia:checked");
-                    if (checkboxes.length === 0) {
-                        alert("Selecciona al menos a un invitado para agrupar.");
-                        return;
-                    }
-        
-                    checkboxes.forEach(chk => {
-                        let index = parseInt(chk.getAttribute("data-index"));
-                        invitadosCotejados[index].familiaManual = nombreFamilia;
-                    });
-        
-                    document.getElementById("txt-nombre-familia").value = "";
-                    alert(`Se ha creado/actualizado el grupo: ${nombreFamilia}`);
-                    
-                    // Refrescar todas las vistas
-                    renderizarTodo(); 
-                }
-        
-        
+            let tbody = document.getElementById("tbody-seleccion-familias");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            invitadosCotejados.forEach((inv, index) => {
+                let familiaMostrar = inv.familiaManual || (inv.detalleFamilia && inv.detalleFamilia !== "-" ? "Tiene acompañantes" : "Ninguna (Individual)");
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="chk-invitado-familia" data-index="${index}" style="transform: scale(1.2);">
+                        </td>
+                        <td>
+                            <strong>${inv.nombre}</strong><br>
+                            <span style="font-size:0.8em; color:#777;">Resp: ${inv.nombreFormulario}</span>
+                        </td>
+                        <td>${inv.estado}</td>
+                        <td>
+                            <span style="padding: 4px 8px; background: ${inv.familiaManual ? '#e3f2fd' : '#f5f5f5'}; border-radius: 4px; font-size: 0.9em;">
+                                ${familiaMostrar}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function crearGrupoFamiliar() {
+            let nombreFamilia = document.getElementById("txt-nombre-familia").value.trim();
+            if (!nombreFamilia) {
+                alert("Por favor, ingresa un nombre para el grupo familiar.");
+                return;
+            }
+
+            let checkboxes = document.querySelectorAll(".chk-invitado-familia:checked");
+            if (checkboxes.length === 0) {
+                alert("Selecciona al menos a un invitado para agrupar.");
+                return;
+            }
+
+            checkboxes.forEach(chk => {
+                let index = parseInt(chk.getAttribute("data-index"));
+                invitadosCotejados[index].familiaManual = nombreFamilia;
+            });
+
+            document.getElementById("txt-nombre-familia").value = "";
+            alert(`Se ha creado/actualizado el grupo: ${nombreFamilia}`);
+            
+            // Refrescar todas las vistas
+            renderizarTodo(); 
+        }
         // =================================================================
         // ACCIONES: EDITAR Y ELIMINAR MESAS
         // =================================================================
