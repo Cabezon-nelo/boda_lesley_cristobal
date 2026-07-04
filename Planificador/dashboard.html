@@ -100,54 +100,34 @@
             </div>
 
             <div id="tab-familias" class="tab-content">
-                <h2>Crear o Modificar Grupos Familiares</h2>
-                    <p><small>Selecciona los invitados de la lista de abajo, asígnales un nombre de familia y agrúpalos para que el sistema los mueva y contabilice juntos.</small></p>
-                <div class="form-group" style="align-items:flex-end;">
-                    <div style="flex:1;">
-                        <label><strong>Familia seleccionada</strong></label>
-                        <select
-                            id="sel-familia-oficial"
-                            style="width:100%;margin-top:5px;"
-                            onchange="mostrarIntegrantesFamilia()">
-                        </select>
-                    </div>
-                    <button
-                        class="btn"
-                        onclick="crearGrupoFamiliar()">
-                        ➕ Agregar seleccionados
-                    </button>
-                </div>
-                <div
-                    id="integrantes-familia"
-                    style="
-                        margin:20px 0;
-                        padding:15px;
-                        background:#fafafa;
-                        border-left:4px solid var(--color-principal);
-                        border-radius:6px;">
-                    <strong>Integrantes actuales</strong>
-                    <div
-                        id="lista-integrantes-familia"
-                        style="margin-top:10px;">
-                        Selecciona una familia.
-                    </div>
-                </div>
+                <h2>Familias</h2>
+                <p><small>Así están agrupados hoy los invitados. Es solo informativo — para agregar más integrantes usa la sección de abajo.</small></p>
+                <div id="familias-existentes-contenedor"></div>
 
                 <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
 
-                <h3>Lista de Invitados para Agrupar</h3>
+                <h3>Invitados sin familia</h3>
+                <p><small>Solo aparecen aquí quienes respondieron el formulario directamente (no estaban en tu lista oficial) y todavía no tienen una familia asignada.</small></p>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th style="width: 5%;">Seleccionar</th>
-                                <th style="width: 40%;">Invitado</th>
-                                <th style="width: 25%;">Estado</th>
-                                <th style="width: 30%;">Familia Actual</th>
+                                <th style="width: 10%;">Seleccionar</th>
+                                <th style="width: 60%;">Invitado</th>
+                                <th style="width: 30%;">Estado</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-seleccion-familias"></tbody>
                     </table>
+                </div>
+
+                <div class="form-group" style="align-items:flex-end;">
+                    <div style="flex:1;">
+                        <label><strong>Agregar seleccionados a</strong></label>
+                        <select id="sel-familia-destino" style="width:100%;margin-top:5px;" onchange="onCambioFamiliaDestino()"></select>
+                        <input type="text" id="nueva-familia-nombre" placeholder="Nombre de la nueva familia" style="width:100%;margin-top:8px;display:none;">
+                    </div>
+                    <button class="btn" onclick="agregarIntegrantesAFamilia()">➕ Agregar seleccionados</button>
                 </div>
             </div>
 

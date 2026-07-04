@@ -81,6 +81,11 @@
         .ficha-label { color: #888; }
         .ficha-acompanantes { margin-top: 10px; padding-top: 8px; border-top: 1px dashed #eee; font-size: 0.85em; color: #555; line-height: 1.4; }
 
+        /* --- Familias existentes (Módulo 2) --- */
+        .familia-integrantes-lista { padding: 15px; }
+        .familia-integrante { padding: 8px 0; border-bottom: 1px dashed #eee; }
+        .familia-integrante-acomp { padding-left: 15px; font-size: 0.85em; color: #777; }
+
         /* Formularios y Tablas */
         .form-group { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .form-group input, .form-group select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1; min-width: 150px; }

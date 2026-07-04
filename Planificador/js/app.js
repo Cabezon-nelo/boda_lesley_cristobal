@@ -105,6 +105,9 @@
             listaOficialNombres.forEach(nombreOficial => {
                 if (!nombreOficial) return;
 
+                // Los nombres tipo "Familia X" son la forma en que los novios pre-registran nombres de
+                // familia (antes de que nadie responda). Nunca son un invitado real: se guardan aparte
+                // para ofrecerlos como opción al agrupar, aunque todavía no tengan integrantes.
                 if (esNombreContenedorFamilia(nombreOficial)) {
                     familiasDisponibles.push(nombreOficial);
                     return;
@@ -204,6 +207,6 @@
             renderizarAsignacionMesas();
             renderizarPlanoMesas();
             renderizarPestanaFamilias();
-            cargarSelectorFamilias();
-            mostrarIntegrantesFamilia();
+            renderizarFamiliasExistentes();
+            poblarSelectorFamiliaDestino();
         }
