@@ -134,51 +134,23 @@
         /* Panel Visual de Mesas */
         .mesa-galeria { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin-top: 20px; }
         .mesa-card {
-            background-color: #f7f4ee;
-            background-image:
-                radial-gradient(circle at 15% 25%, rgba(120,110,95,0.06) 0%, transparent 45%),
-                radial-gradient(circle at 80% 15%, rgba(120,110,95,0.05) 0%, transparent 40%),
-                radial-gradient(circle at 55% 60%, rgba(120,110,95,0.06) 0%, transparent 50%),
-                radial-gradient(circle at 25% 90%, rgba(120,110,95,0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(120,110,95,0.05) 0%, transparent 45%);
+            background-color: #fcfbf8;
             width: 320px;
             padding: 40px 30px;
             text-align: center;
             border: 1px solid #eaeaea;
             box-shadow: 0 10px 25px rgba(0,0,0,0.03);
             position: relative;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-        /* Salpicado dorado decorativo, acotado a la esquina superior e inferior izquierda */
-        .mesa-card::before, .mesa-card::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            width: 130px;
-            height: 130px;
-            pointer-events: none;
-            z-index: 0;
-            background-image:
-                radial-gradient(circle, #c9a05c 1.5px, transparent 1.6px),
-                radial-gradient(circle, #d4b06a 1px, transparent 1.1px),
-                radial-gradient(circle, #b8935a 1.2px, transparent 1.3px),
-                radial-gradient(circle, #c9a05c 1px, transparent 1.1px),
-                radial-gradient(circle, #d4b06a 0.8px, transparent 0.9px);
-            background-size: 14px 14px, 20px 20px, 26px 26px, 34px 34px, 42px 42px;
-            background-position: 0 0, 10px 6px, 4px 20px, 18px 16px, 8px 34px;
-            opacity: 0.85;
-        }
-        .mesa-card::before { top: 0; }
-        .mesa-card::after { bottom: 0; transform: scaleY(-1); }
-        .mesa-card .numero { position: relative; z-index: 1; font-family: 'Times New Roman', Times, serif; font-size: 7em; line-height: 1; margin: 0; color: #111; }
-        .mesa-card .titulo { position: relative; z-index: 1; font-family: 'Times New Roman', Times, serif; font-size: 1.8em; letter-spacing: 8px; text-transform: uppercase; margin-bottom: auto; }
-        .mesa-card .novios { position: relative; z-index: 1; font-family: 'Brush Script MT', 'Lucida Handwriting', cursive; font-size: 2.2em; color: #bfa175; margin: 40px 0 10px 0; }
-        .mesa-card .fecha { position: relative; z-index: 1; font-size: 0.85em; letter-spacing: 4px; color: #333; margin-bottom: 25px; }
-        .mesa-card .lista-invitados { position: relative; z-index: 1; text-align: left; border-top: 1px solid #ddd; padding-top: 15px; font-size: 0.95em; min-height: 100px; }
+        .mesa-card .numero { font-family: 'Times New Roman', Times, serif; font-size: 7em; line-height: 1; margin: 0; color: #111; }
+        .mesa-card .titulo { font-family: 'Times New Roman', Times, serif; font-size: 1.8em; letter-spacing: 8px; text-transform: uppercase; margin-bottom: auto; }
+        .mesa-card .novios { font-family: 'Brush Script MT', 'Lucida Handwriting', cursive; font-size: 2.2em; color: #bfa175; margin: 40px 0 10px 0; }
+        .mesa-card .fecha { font-size: 0.85em; letter-spacing: 4px; color: #333; margin-bottom: 25px; }
+        .mesa-card .lista-invitados { text-align: left; border-top: 1px solid #ddd; padding-top: 15px; font-size: 0.95em; min-height: 100px; }
         .mesa-card .invitado-item { padding: 8px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; }
-        .mesa-card .sillas-info { position: relative; z-index: 1; padding: 10px; border-radius: 6px; font-size: 0.85em; }
+        .mesa-card .sillas-info { padding: 10px; border-radius: 6px; font-size: 0.85em; }
         .mesa-card .sillas-ok { background: #e8f5e9; color: #2e7d32; }
         .mesa-card .sillas-llena { background: #ffebee; color: #c62828; }
 
