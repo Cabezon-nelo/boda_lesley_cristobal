@@ -28,6 +28,7 @@
             <button class="nav-btn" onclick="cambiarPestaña('tab-familias')">Gestión de Familias</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-mesas')">Mesas</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-visual-mesas')">Plano de Mesas</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-reportes')">Reportes</button>
         </nav>
 
         <div class="container">
@@ -82,10 +83,7 @@
                     <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
 
                     <h2>Lista de Invitados Oficial vs. Respuesta</h2>
-                    <div style="text-align: right; margin-bottom: 15px;">
-                        <button class="btn btn-success" onclick="descargarExcelInvitados()">📊 Descargar Lista en Excel</button>
-                    </div>
-                    <p><small>*Aquí se cruzan tus invitados ingresados con lo que responden en el formulario web.</small></p>
+                    <p><small>*Aquí se cruzan tus invitados ingresados con lo que responden en el formulario web. Para descargar esta lista en Excel, ve a la pestaña "Reportes".</small></p>
                     <div class="table-responsive">
                         <table>
                             <thead>
@@ -172,7 +170,21 @@
                     <div id="plano-recinto-contenedor" class="plano-recinto-contenedor"></div>
                 </div>
             </div>
-            
+
+            <div id="tab-reportes" class="tab-content">
+                <h2>Reportes</h2>
+                <p><small>Descarga distintos formatos en Excel según a quién se los vayas a repartir.</small></p>
+                <div class="reportes-grid">
+                    <button class="btn" onclick="descargarReporte('lista-general')">📊 Lista General</button>
+                    <button class="btn" onclick="descargarReporte('cocina')">🍽️ Cocina</button>
+                    <button class="btn" onclick="descargarReporte('banquetero')">🥘 Banquetero</button>
+                    <button class="btn" onclick="descargarReporte('decoracion')">🎨 Decoración</button>
+                    <button class="btn" onclick="descargarReporte('garzones')">🥂 Garzones</button>
+                    <button class="btn" onclick="descargarReporte('familias')">👪 Familias</button>
+                    <button class="btn" onclick="descargarReporte('mesas')">🪑 Mesas</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
