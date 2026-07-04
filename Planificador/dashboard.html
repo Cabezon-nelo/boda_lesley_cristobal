@@ -143,11 +143,24 @@
             </div>
 
             <div id="tab-visual-mesas" class="tab-content">
-                <h2>Plano Visual de Mesas</h2>
-                <div style="text-align: right; margin-bottom: 15px;">
-                    <button class="btn btn-success" onclick="descargarPDFMesas()">🖨️ Descargar Tarjetas en PDF</button>
+                <div class="subnav">
+                    <button class="subtab-btn active" data-grupo="plano" onclick="cambiarSubTab('plano', 'sub-tarjetas-mesa')">Tarjetas para Imprimir</button>
+                    <button class="subtab-btn" data-grupo="plano" onclick="cambiarSubTab('plano', 'sub-plano-recinto')">Plano del Recinto</button>
                 </div>
-                <div id="galeria-mesas" class="mesa-galeria"></div>
+
+                <div id="sub-tarjetas-mesa" class="subtab-content active" data-grupo="plano">
+                    <h2>Tarjetas de Mesa para Imprimir</h2>
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <button class="btn btn-success" onclick="descargarPDFMesas()">🖨️ Descargar Tarjetas en PDF</button>
+                    </div>
+                    <div id="galeria-mesas" class="mesa-galeria"></div>
+                </div>
+
+                <div id="sub-plano-recinto" class="subtab-content" data-grupo="plano">
+                    <h2>Plano del Recinto</h2>
+                    <p><small>Arrastra cada mesa para ubicarla más o menos como estará en el recinto. La posición se guarda en este navegador (todavía no se sincroniza entre dispositivos).</small></p>
+                    <div id="plano-recinto-contenedor" class="plano-recinto-contenedor"></div>
+                </div>
             </div>
             
         </div>

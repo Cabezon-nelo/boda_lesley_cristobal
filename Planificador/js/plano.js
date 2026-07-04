@@ -56,3 +56,86 @@
                 `;
             });
         }
+
+        // --- PLANO DEL RECINTO (posición de cada mesa, guardada solo en este navegador) ---
+        const CLAVE_PLANO_LOCALSTORAGE = 'planoRecintoPosiciones';
+
+        function obtenerPosicionesPlano() {
+            try {
+                return JSON.parse(localStorage.getItem(CLAVE_PLANO_LOCALSTORAGE)) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function guardarPosicionPlano(nombreMesa, x, y) {
+            let posiciones = obtenerPosicionesPlano();
+            posiciones[nombreMesa] = { x, y };
+            localStorage.setItem(CLAVE_PLANO_LOCALSTORAGE, JSON.stringify(posiciones));
+        }
+
+        function habilitarArrastreMesa(chip, nombreMesa, contenedor) {
+            chip.addEventListener('pointerdown', (eventoInicial) => {
+                eventoInicial.preventDefault();
+                chip.setPointerCapture(eventoInicial.pointerId);
+                chip.classList.add('arrastrando');
+
+                const limites = contenedor.getBoundingClientRect();
+                const offsetX = eventoInicial.clientX - chip.getBoundingClientRect().left;
+                const offsetY = eventoInicial.clientY - chip.getBoundingClientRect().top;
+
+                function alMover(eventoMovimiento) {
+                    let nuevoX = eventoMovimiento.clientX - limites.left - offsetX;
+                    let nuevoY = eventoMovimiento.clientY - limites.top - offsetY;
+
+                    nuevoX = Math.max(0, Math.min(nuevoX, limites.width - chip.offsetWidth));
+                    nuevoY = Math.max(0, Math.min(nuevoY, limites.height - chip.offsetHeight));
+
+                    chip.style.left = nuevoX + 'px';
+                    chip.style.top = nuevoY + 'px';
+                }
+
+                function alSoltar() {
+                    chip.classList.remove('arrastrando');
+                    chip.removeEventListener('pointermove', alMover);
+                    chip.removeEventListener('pointerup', alSoltar);
+                    guardarPosicionPlano(nombreMesa, parseInt(chip.style.left), parseInt(chip.style.top));
+                }
+
+                chip.addEventListener('pointermove', alMover);
+                chip.addEventListener('pointerup', alSoltar);
+            });
+        }
+
+        function renderizarPlanoRecinto() {
+            const contenedor = document.getElementById('plano-recinto-contenedor');
+            if (!contenedor) return;
+            contenedor.innerHTML = '';
+
+            let soloConfirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si');
+            let posicionesGuardadas = obtenerPosicionesPlano();
+
+            mesasBD.forEach((mesa, index) => {
+                let invitadosEnMesa = soloConfirmados.filter(inv => inv.mesaAsignada.toString().trim() === mesa.nombre.toString().trim());
+                let sillasOcupadas = invitadosEnMesa.reduce((total, inv) => total + 1 + inv.acompaniantes, 0);
+
+                let chip = document.createElement('div');
+                chip.className = 'plano-mesa-chip';
+                chip.innerHTML = `<strong>${mesa.nombre}</strong><small>${sillasOcupadas}/${mesa.capacidad}</small>`;
+
+                let posicion = posicionesGuardadas[mesa.nombre];
+                if (!posicion) {
+                    // Sin posición guardada todavía: se distribuyen en filas simples hasta que el usuario las mueva.
+                    let columnas = 5;
+                    posicion = {
+                        x: 20 + (index % columnas) * 110,
+                        y: 20 + Math.floor(index / columnas) * 110
+                    };
+                }
+                chip.style.left = posicion.x + 'px';
+                chip.style.top = posicion.y + 'px';
+
+                habilitarArrastreMesa(chip, mesa.nombre, contenedor);
+                contenedor.appendChild(chip);
+            });
+        }
