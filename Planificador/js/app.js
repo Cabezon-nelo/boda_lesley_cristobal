@@ -205,6 +205,7 @@
             renderizarFichasInvitados();
             renderizarMesasVisual();
             renderizarPlanoMesas();
+            renderizarPlanoRecinto();
             renderizarPestanaFamilias();
             renderizarFamiliasExistentes();
             poblarSelectorFamiliaDestino();
