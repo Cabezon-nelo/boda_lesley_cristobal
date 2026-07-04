@@ -36,6 +36,16 @@
             if(btnActivo) btnActivo.classList.add('active');
         }
 
+        function cambiarSubTab(grupo, subId) {
+            document.querySelectorAll(`.subtab-content[data-grupo="${grupo}"]`).forEach(el => el.classList.remove('active'));
+            document.querySelectorAll(`.subtab-btn[data-grupo="${grupo}"]`).forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(subId).classList.add('active');
+
+            const btnActivo = document.querySelector(`button[onclick="cambiarSubTab('${grupo}', '${subId}')"]`);
+            if(btnActivo) btnActivo.classList.add('active');
+        }
+
         async function verificarPassword() {
             const input = document.getElementById('password-input').value;
             const btn = document.querySelector('#login-screen button');
@@ -189,6 +199,7 @@
         function renderizarTodo() {
             renderizarEstadisticas();
             renderizarListaInvitados();
+            renderizarFichasInvitados();
             renderizarMesasCreadas();
             renderizarAsignacionMesas();
             renderizarPlanoMesas();
