@@ -26,8 +26,7 @@
             <button class="nav-btn active" onclick="cambiarPestaña('tab-stats')">Estadísticas</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-lista')">Invitados</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-familias')">Gestión de Familias</button>
-            <button class="nav-btn" onclick="cambiarPestaña('tab-mesas')">Crear Mesas</button>
-            <button class="nav-btn" onclick="cambiarPestaña('tab-asignacion')">Asignación de Mesas</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-mesas')">Mesas</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-visual-mesas')">Plano de Mesas</button>
         </nav>
 
@@ -132,45 +131,15 @@
             </div>
 
             <div id="tab-mesas" class="tab-content">
-                <h2>Crear o Editar Mesas</h2>
+                <h2>Mesas</h2>
+                <p><small>Solo se muestran invitados confirmados. Para mover a alguien (o a toda su familia) a otra mesa, elige la mesa de destino en su selector — se guarda de inmediato, sin botón aparte.</small></p>
                 <div class="form-group">
                     <input type="text" id="mesa-nombre" placeholder="Ej: Mesa 1 / Mesa Familiares">
                     <input type="number" id="mesa-capacidad" placeholder="Capacidad Máxima (Ej: 8)" min="1">
                     <button class="btn" onclick="crearMesa()">Crear Mesa</button>
                 </div>
 
-                <h2>Mesas Definidas</h2>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre / Número de Mesa</th>
-                                <th>Capacidad Máxima</th>
-                                <th>Asignados Actualmente</th>
-                                <th>Disponibilidad</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-mesas-creadas"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="tab-asignacion" class="tab-content">
-                <h2>Asignación de Asientos (Solo Confirmados)</h2>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Invitado Principal</th>
-                                <th>Acompañantes</th>
-                                <th>Mesa Asignada</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-asignacion-mesas"></tbody>
-                    </table>
-                </div>
+                <div id="mesas-visual-contenedor" class="mesas-grid"></div>
             </div>
 
             <div id="tab-visual-mesas" class="tab-content">

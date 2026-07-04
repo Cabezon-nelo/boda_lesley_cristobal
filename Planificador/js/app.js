@@ -203,8 +203,7 @@
             renderizarEstadisticas();
             renderizarListaInvitados();
             renderizarFichasInvitados();
-            renderizarMesasCreadas();
-            renderizarAsignacionMesas();
+            renderizarMesasVisual();
             renderizarPlanoMesas();
             renderizarPestanaFamilias();
             renderizarFamiliasExistentes();
