@@ -201,6 +201,9 @@
         // --- ORQUESTADOR DE RENDER: cada módulo pinta su propia sección ---
         function renderizarTodo() {
             renderizarEstadisticas();
+            renderizarGraficoAsistencia();
+            renderizarGraficoMenus();
+            renderizarGraficoMesasOcupacion();
             renderizarListaInvitados();
             renderizarFichasInvitados();
             renderizarMesasVisual();

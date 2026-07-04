@@ -63,6 +63,12 @@
         .stat-card h3 { margin: 0; color: #666; font-size: 0.9em; text-transform: uppercase; }
         .stat-card p { margin: 10px 0 0 0; font-size: 2em; font-weight: bold; color: var(--color-oscuro); }
 
+        /* Gráficos de barra (Módulo 5) */
+        .barra-progreso { background: #eee; border-radius: 6px; height: 14px; overflow: hidden; margin: 8px 0; }
+        .barra-progreso-relleno { background: var(--color-principal); height: 100%; border-radius: 6px; transition: width 0.3s ease; }
+        .barra-item { margin-bottom: 14px; }
+        .barra-item-label { display: flex; justify-content: space-between; font-size: 0.9em; margin-bottom: 4px; color: #555; }
+
         /* --- Sub-navegación dentro de un módulo --- */
         .subnav { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #eee; flex-wrap: wrap; }
         .subtab-btn { background: none; border: none; padding: 10px 16px; font-size: 0.9em; cursor: pointer; color: #666; font-weight: 500; border-bottom: 3px solid transparent; }
