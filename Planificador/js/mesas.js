@@ -26,22 +26,6 @@
             }
         }
 
-        async function guardarMesaInvitado(fila) {
-            const selector = document.getElementById(`sel-mesa-${fila}`);
-            const mesaSeleccionada = selector.value;
-
-            try {
-                await fetch(URL_GOOGLE_SCRIPT, {
-                    method: 'POST',
-                    body: JSON.stringify({ accion: 'asignar_mesa', fila: fila, nuevaMesa: mesaSeleccionada })
-                });
-                alert("Mesa guardada con éxito.");
-                await cargarDatosDesdeExcel();
-            } catch(e) {
-                alert("No se pudo guardar la asignación.");
-            }
-        }
-
         async function eliminarMesa(nombreMesa) {
             if (!confirm(`¿Estás seguro de que deseas eliminar la mesa "${nombreMesa}"?`)) return;
             try {
@@ -80,74 +64,134 @@
             }
         }
 
-        // --- RENDER: MESAS DEFINIDAS Y ASIGNACIÓN DE ASIENTOS ---
-        function renderizarMesasCreadas() {
-            let soloConfirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si');
+        // Mueve a una familia completa (todas sus filas confirmadas) o a un invitado individual
+        // a otra mesa, apenas se elige en el selector — sin botón "Guardar" aparte.
+        async function moverGrupoAMesa(tipo, identificador, mesaDestino, selectElemento) {
+            let filas = [];
+            if (tipo === 'familia') {
+                let integrantes = estructuraFamilias[identificador] ? estructuraFamilias[identificador].integrantes : [];
+                filas = integrantes
+                    .filter(inv => inv.estado.toLowerCase() === 'sí' || inv.estado.toLowerCase() === 'si')
+                    .map(inv => inv.filaExcel)
+                    .filter(fila => fila);
+            } else {
+                filas = [identificador];
+            }
 
-            const tbodyMesas = document.getElementById('tabla-mesas-creadas');
-            tbodyMesas.innerHTML = '';
-            mesasBD.forEach(mesa => {
-                let asignadosAqui = 0;
-                let invitadosEnMesa = soloConfirmados.filter(inv => inv.mesaAsignada.toString().trim() === mesa.nombre.toString().trim());
+            if (filas.length === 0) return;
 
-                invitadosEnMesa.forEach(inv => {
-                    asignadosAqui += (1 + inv.acompaniantes);
-                });
+            selectElemento.disabled = true;
 
-                let disponible = mesa.capacidad - asignadosAqui;
-
-                tbodyMesas.innerHTML += `
-                    <tr>
-                        <td>${mesa.nombre}</td>
-                        <td>${mesa.capacidad}</td>
-                        <td>${asignadosAqui}</td>
-                        <td>${disponible <= 0 ? '❌ Lleno' : disponible}</td>
-                        <td>
-                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em;" onclick="editarMesa('${mesa.nombre}', ${mesa.capacidad})">✏️ Editar</button>
-                            <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background-color: #F44336;" onclick="eliminarMesa('${mesa.nombre}')">🗑️ Eliminar</button>
-                        </td>
-                    </tr>
-                `;
-            });
+            try {
+                for (const fila of filas) {
+                    await fetch(URL_GOOGLE_SCRIPT, {
+                        method: 'POST',
+                        body: JSON.stringify({ accion: 'asignar_mesa', fila: fila, nuevaMesa: mesaDestino })
+                    });
+                }
+                await cargarDatosDesdeExcel();
+            } catch (e) {
+                alert("No se pudo mover a la mesa seleccionada.");
+                selectElemento.disabled = false;
+            }
         }
 
-        function renderizarAsignacionMesas() {
-            let soloConfirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si');
+        // --- RENDER: MESAS (tarjetas visuales, Módulo 3) ---
+        function generarSelectMoverMesa(tipo, identificador, mesaActual) {
+            let opciones = mesaActual
+                ? `<option value="">-- Mover a --</option>`
+                : `<option value="">-- Elegir mesa --</option>`;
 
-            const tbodyAsignacion = document.getElementById('tabla-asignacion-mesas');
-            tbodyAsignacion.innerHTML = '';
-            soloConfirmados.forEach(inv => {
-                let opcionesMesas = `<option value="">-- Seleccionar Mesa --</option>`;
-                mesasBD.forEach(m => {
-                    let seleccionado = inv.mesaAsignada.toString().trim() === m.nombre.toString().trim() ? 'selected' : '';
-                    opcionesMesas += `<option value="${m.nombre}" ${seleccionado}>${m.nombre}</option>`;
-                });
+            mesasBD.forEach(m => {
+                if (mesaActual && m.nombre.toString().trim() === mesaActual.toString().trim()) return;
+                opciones += `<option value="${m.nombre}">${m.nombre}</option>`;
+            });
 
-                let etiquetaGrupo = "";
+            return `
+                <select onchange="if(this.value) moverGrupoAMesa('${tipo}', '${identificador}', this.value, this)">
+                    ${opciones}
+                </select>
+            `;
+        }
+
+        function generarFilasIntegrantesMesa(invitadosEnMesa, mesaActual) {
+            let familiasEnMesa = {};
+            let individualesEnMesa = [];
+
+            invitadosEnMesa.forEach(inv => {
                 if (inv.familiaManual) {
-                    etiquetaGrupo = `<br><span style="background: #e3f2fd; color: #0d47a1; font-size: 0.8em; padding: 2px 6px; border-radius: 4px; font-weight: bold;">👪 Vinculado a: ${inv.familiaManual}</span>`;
+                    if (!familiasEnMesa[inv.familiaManual]) familiasEnMesa[inv.familiaManual] = [];
+                    familiasEnMesa[inv.familiaManual].push(inv);
+                } else {
+                    individualesEnMesa.push(inv);
                 }
+            });
 
-                let limpioAcomp = inv.detalleFamilia ? inv.detalleFamilia.trim().toLowerCase() : "";
-                let tieneAcompanantesTexto = limpioAcomp !== "" && limpioAcomp !== "-" && limpioAcomp !== "0" && limpioAcomp !== "no" && limpioAcomp !== "ninguno" && limpioAcomp !== "ninguna" && limpioAcomp !== "sin acompañantes";
+            let filasHTML = '';
 
-                if (tieneAcompanantesTexto) {
-                    etiquetaGrupo += `<br><small style="color: #777;"><strong>Acompañantes:</strong> ${inv.detalleFamilia}</small>`;
-                }
-
-                tbodyAsignacion.innerHTML += `
-                    <tr>
-                        <td><strong>${inv.nombre}</strong>${etiquetaGrupo}</td>
-                        <td>${inv.acompaniantes}</td>
-                        <td>
-                            <select id="sel-mesa-${inv.filaExcel}">
-                                ${opcionesMesas}
-                            </select>
-                        </td>
-                        <td>
-                            <button class="btn btn-success" onclick="guardarMesaInvitado(${inv.filaExcel})">Guardar</button>
-                        </td>
-                    </tr>
+            Object.keys(familiasEnMesa).forEach(nombreFamilia => {
+                let integrantes = familiasEnMesa[nombreFamilia];
+                let sillas = integrantes.reduce((total, inv) => total + 1 + inv.acompaniantes, 0);
+                filasHTML += `
+                    <div class="mesa-integrante-fila">
+                        <span>👪 ${nombreFamilia} <small>(${sillas} sillas)</small></span>
+                        ${generarSelectMoverMesa('familia', nombreFamilia, mesaActual)}
+                    </div>
                 `;
             });
+
+            individualesEnMesa.forEach(inv => {
+                let sillas = 1 + inv.acompaniantes;
+                filasHTML += `
+                    <div class="mesa-integrante-fila">
+                        <span>${inv.nombre} <small>(${sillas} sillas)</small></span>
+                        ${generarSelectMoverMesa('individual', inv.filaExcel, mesaActual)}
+                    </div>
+                `;
+            });
+
+            return filasHTML;
+        }
+
+        function renderizarMesasVisual() {
+            const contenedor = document.getElementById('mesas-visual-contenedor');
+            if (!contenedor) return;
+            contenedor.innerHTML = '';
+
+            let soloConfirmados = invitadosCotejados.filter(i => i.estado.toLowerCase() === 'sí' || i.estado.toLowerCase() === 'si');
+
+            mesasBD.forEach(mesa => {
+                let invitadosEnMesa = soloConfirmados.filter(inv => inv.mesaAsignada.toString().trim() === mesa.nombre.toString().trim());
+                let sillasOcupadas = invitadosEnMesa.reduce((total, inv) => total + 1 + inv.acompaniantes, 0);
+
+                contenedor.innerHTML += `
+                    <div class="mesa-tarjeta">
+                        <div class="mesa-tarjeta-header">
+                            <strong>${mesa.nombre} — ${sillasOcupadas}/${mesa.capacidad} personas</strong>
+                            <div>
+                                <button class="btn" style="padding: 5px 10px; font-size: 0.8em;" onclick="editarMesa('${mesa.nombre}', ${mesa.capacidad})">✏️ Editar</button>
+                                <button class="btn" style="padding: 5px 10px; font-size: 0.8em; background-color: #F44336;" onclick="eliminarMesa('${mesa.nombre}')">🗑️ Eliminar</button>
+                            </div>
+                        </div>
+                        <div class="mesa-integrantes">
+                            ${generarFilasIntegrantesMesa(invitadosEnMesa, mesa.nombre) || '<p style="color:#aaa;">Mesa vacía</p>'}
+                        </div>
+                    </div>
+                `;
+            });
+
+            let sinAsignar = soloConfirmados.filter(inv => !inv.mesaAsignada || inv.mesaAsignada.toString().trim() === '');
+            if (sinAsignar.length > 0) {
+                let sillasSinAsignar = sinAsignar.reduce((total, inv) => total + 1 + inv.acompaniantes, 0);
+                contenedor.innerHTML += `
+                    <div class="mesa-tarjeta mesa-sin-asignar">
+                        <div class="mesa-tarjeta-header">
+                            <strong>Sin asignar — ${sillasSinAsignar} personas</strong>
+                        </div>
+                        <div class="mesa-integrantes">
+                            ${generarFilasIntegrantesMesa(sinAsignar, null)}
+                        </div>
+                    </div>
+                `;
+            }
         }
