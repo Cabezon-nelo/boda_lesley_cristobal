@@ -5,7 +5,6 @@
         let respuestasInvitados = [];
         let invitadosCotejados = [];
         let mesasBD = [];
-        let familiasDisponibles = [];
         let estructuraFamilias = {};
         let invitadosIndividuales = [];
 
@@ -98,15 +97,15 @@
         // --- PROCESAMIENTO Y CRUCE DE DATOS (COTEJO) ---
         function realizarCotejo() {
             invitadosCotejados = [];
-            familiasDisponibles = [];
             let respuestasProcesadas = new Set();
 
             // FASE 1: Recorrer la lista oficial y emparejar
             listaOficialNombres.forEach(nombreOficial => {
                 if (!nombreOficial) return;
 
+                // Los nombres tipo "Familia X" son solo una etiqueta usada antes para nombrar familias
+                // manualmente; nunca fueron un invitado real, así que se descartan sin registrarlos en ningún lado.
                 if (esNombreContenedorFamilia(nombreOficial)) {
-                    familiasDisponibles.push(nombreOficial);
                     return;
                 }
 
@@ -204,6 +203,6 @@
             renderizarAsignacionMesas();
             renderizarPlanoMesas();
             renderizarPestanaFamilias();
-            cargarSelectorFamilias();
-            mostrarIntegrantesFamilia();
+            renderizarFamiliasExistentes();
+            poblarSelectorFamiliaDestino();
         }
