@@ -1,0 +1,101 @@
+TAREAS PENDIENTES - Panel de Boda (Planificador)
+==================================================
+Última actualización: 2026-07-04
+
+Este archivo resume lo que falta por construir o decidir en el dashboard,
+para retomarlo más adelante sin perder el contexto de las decisiones ya
+tomadas durante la reestructuración.
+
+MÓDULOS DEL CATÁLOGO ORIGINAL AÚN NO CONSTRUIDOS
+--------------------------------------------------
+
+1) Módulo 7 - Configuración
+   Objetivo: dejar de tener "Lesley y Cristóbal" y la fecha del evento
+   hardcodeados en el código (hoy están literal en Planificador/js/plano.js).
+   - Frontend-only (se puede hacer sin tocar Apps Script):
+     nombre de los novios, fecha, lugar, hora, colores del tema.
+   - Requiere Apps Script:
+     cambiar la contraseña del dashboard desde la UI (hoy la valida
+     el backend vía la acción "login_novios").
+   - Logo / foto: si es solo referenciar un archivo estático, es
+     frontend-only; si se quiere "subir" un archivo desde la UI,
+     requiere backend con almacenamiento.
+
+2) Módulo 8 - Invitaciones
+   - Frontend-only: generar/descargar QR de la URL del sitio, armar un
+     link de WhatsApp con texto predefinido (wa.me/?text=...).
+   - Requiere Apps Script: activar/desactivar el formulario público y
+     que una fecha límite realmente bloquee nuevas respuestas.
+
+TRABAJO DE APPS SCRIPT (pospuesto a propósito durante este trabajo)
+--------------------------------------------------
+El usuario decidió no tocar el backend por ahora. Cuando se retome,
+esto quedó pendiente y depende de nuevas acciones ahí:
+
+- Editar o eliminar un invitado individual desde la ficha del Módulo 1
+  (hoy las fichas son de solo lectura a propósito).
+- Sacar a alguien de una familia (dejarlo sin familia) o eliminar una
+  familia completa: nunca se probó si guardar_familia acepta un valor
+  vacío; no existe una acción dedicada para esto hoy.
+- Guardar la posición de las mesas del Plano del Recinto (Módulo 4)
+  en el backend en vez de solo en localStorage del navegador, para
+  que se sincronice entre dispositivos.
+- Acciones para Módulo 7 (cambiar contraseña) y Módulo 8 (activar/
+  desactivar formulario, fecha límite).
+- Reestructurar el código de Apps Script en varios archivos .gs
+  (Code.gs, Invitados.gs, Familias.gs, Mesas.gs, Reportes.gs,
+  Utilidades.gs) en vez de un solo script grande, igual que se hizo
+  con el frontend.
+
+LIMITACIONES DE DATOS CONOCIDAS
+--------------------------------------------------
+- "Restricciones alimentarias" (celíaco, alergias, etc.) no son un
+  campo propio: hoy viven como texto libre dentro del campo de
+  acompañantes (ej: "Gato 1 (Menú: restriccion - Restricción:
+  Pescado)"). Por eso el gráfico de Estadísticas no incluye
+  restricciones - se podría intentar un parser de texto best-effort,
+  pero no sería confiable al 100% sin un campo estructurado nuevo en
+  el formulario/backend.
+
+BUG MENOR DETECTADO (no corregido, quedó fuera de alcance)
+--------------------------------------------------
+- En realizarCotejo() (Planificador/js/app.js), dentro de la FASE 1,
+  la rama "else" (invitado oficial sin respuesta de formulario) tiene:
+      familiaManual: respForm ? (respForm.familia || "") : "",
+  Como en ese punto "respForm" siempre es falsy (por eso se entró al
+  else), esta línea siempre da "". No afecta nada hoy porque un
+  invitado sin respuesta tampoco puede tener familia manual asignada
+  todavía, pero es código muerto/confuso que vale la pena limpiar
+  cuando se retome este archivo.
+
+INDEX.HTML (raíz del repo)
+--------------------------------------------------
+No se tocó a propósito: contiene datos sensibles que no se pueden
+perder. Quedó pendiente evaluar más adelante si conviene una limpieza
+o una redirección hacia el dashboard nuevo, igual que se hizo con
+Dashboard_novios.html.
+
+NOTA OPERATIVA: GitHub Pages se queda "pegado"
+--------------------------------------------------
+Varias veces, después de mergear un PR a main, el build de GitHub
+Pages quedó atascado en estado "building" sin avanzar por varios
+minutos. Lo que funcionó cada vez fue disparar un build manual vía
+la API:
+  gh api -X POST repos/Cabezon-nelo/boda_lesley_cristobal/pages/builds
+Si el sitio no refleja un cambio recién mergeado después de un par de
+minutos, probar esto antes de asumir que algo se rompió.
+
+MÓDULOS YA COMPLETADOS (para referencia)
+--------------------------------------------------
+1. Invitados: fichas visuales de solo lectura + carga masiva (igual
+   que antes).
+2. Familias: gestión 100% visual (sin escribir texto libre para
+   agregar integrantes; solo al crear una familia nueva).
+3. Mesas: tarjetas visuales, mover invitados/familias sin botón
+   "Guardar".
+4. Plano: tarjetas de mesa imprimibles (diseño original) + Plano del
+   Recinto arrastrable (posición guardada en localStorage).
+5. Estadísticas: gráficos de barra (asistencia, menús, ocupación de
+   mesas).
+6. Reportes: 7 descargas Excel por rol (Lista General, Cocina,
+   Banquetero, Decoración, Garzones, Familias, Mesas).
