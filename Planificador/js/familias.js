@@ -26,15 +26,20 @@
             });
         }
 
-        // Las familias que ya existen se derivan directamente de estructuraFamilias
-        // (ya no del truco de escribir "Familia X" en la carga masiva).
+        // Une las familias que ya tienen integrantes (estructuraFamilias) con las que los novios
+        // pre-registraron por nombre pero aún no tienen a nadie asignado (familiasDisponibles).
+        function obtenerNombresFamiliaCombinados() {
+            let nombres = new Set([...Object.keys(estructuraFamilias), ...familiasDisponibles]);
+            return [...nombres].sort((a, b) => a.localeCompare(b));
+        }
+
         function poblarSelectorFamiliaDestino() {
             let selector = document.getElementById("sel-familia-destino");
             if (!selector) return;
             let valorPrevio = selector.value;
             selector.innerHTML = `<option value="">-- Elegir familia --</option>`;
 
-            Object.keys(estructuraFamilias).forEach(nombre => {
+            obtenerNombresFamiliaCombinados().forEach(nombre => {
                 selector.innerHTML += `<option value="${nombre}">${nombre}</option>`;
             });
 
@@ -124,21 +129,26 @@
             if (!contenedor) return;
             contenedor.innerHTML = '';
 
-            let nombresFamilias = Object.keys(estructuraFamilias);
+            let nombresFamilias = obtenerNombresFamiliaCombinados();
             if (nombresFamilias.length === 0) {
-                contenedor.innerHTML = `<p style="color:#888;">Todavía no has creado ninguna familia.</p>`;
+                contenedor.innerHTML = `<p style="color:#888;">Todavía no hay familias registradas.</p>`;
                 return;
             }
 
             nombresFamilias.forEach(nombreFamilia => {
-                let integrantes = estructuraFamilias[nombreFamilia].integrantes;
-                let integrantesHTML = integrantes.map(inv => generarIntegranteFamiliaHTML(inv)).join('');
+                let integrantes = estructuraFamilias[nombreFamilia] ? estructuraFamilias[nombreFamilia].integrantes : [];
+                let resumenODisponible = integrantes.length > 0
+                    ? generarResumenFamilia(integrantes)
+                    : 'Sin integrantes todavía';
+                let integrantesHTML = integrantes.length > 0
+                    ? integrantes.map(inv => generarIntegranteFamiliaHTML(inv)).join('')
+                    : `<p style="color:#888; padding: 0 15px;">Aún no hay nadie asignado a esta familia.</p>`;
 
                 contenedor.innerHTML += `
                     <details class="familia-acordeon">
                         <summary class="familia-resumen">
                             👪 ${nombreFamilia}
-                            <span class="familia-resumen-detalle">${generarResumenFamilia(integrantes)}</span>
+                            <span class="familia-resumen-detalle">${resumenODisponible}</span>
                         </summary>
                         <div class="familia-integrantes-lista">${integrantesHTML}</div>
                     </details>

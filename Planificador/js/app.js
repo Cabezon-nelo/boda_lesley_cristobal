@@ -5,6 +5,7 @@
         let respuestasInvitados = [];
         let invitadosCotejados = [];
         let mesasBD = [];
+        let familiasDisponibles = [];
         let estructuraFamilias = {};
         let invitadosIndividuales = [];
 
@@ -97,15 +98,18 @@
         // --- PROCESAMIENTO Y CRUCE DE DATOS (COTEJO) ---
         function realizarCotejo() {
             invitadosCotejados = [];
+            familiasDisponibles = [];
             let respuestasProcesadas = new Set();
 
             // FASE 1: Recorrer la lista oficial y emparejar
             listaOficialNombres.forEach(nombreOficial => {
                 if (!nombreOficial) return;
 
-                // Los nombres tipo "Familia X" son solo una etiqueta usada antes para nombrar familias
-                // manualmente; nunca fueron un invitado real, así que se descartan sin registrarlos en ningún lado.
+                // Los nombres tipo "Familia X" son la forma en que los novios pre-registran nombres de
+                // familia (antes de que nadie responda). Nunca son un invitado real: se guardan aparte
+                // para ofrecerlos como opción al agrupar, aunque todavía no tengan integrantes.
                 if (esNombreContenedorFamilia(nombreOficial)) {
+                    familiasDisponibles.push(nombreOficial);
                     return;
                 }
 
