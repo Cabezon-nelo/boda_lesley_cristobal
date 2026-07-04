@@ -55,3 +55,59 @@
                 tbodyLista.innerHTML += generarFilaInvitado(inv);
             });
         }
+
+        // --- FICHAS DE INVITADOS (Módulo 1, solo lectura por ahora) ---
+        function generarFichaInvitado(inv) {
+            let claseTag = 'tag-pendiente';
+            if (inv.estado.toLowerCase() === 'sí' || inv.estado.toLowerCase() === 'si') claseTag = 'tag-si';
+            if (inv.estado.toLowerCase() === 'no') claseTag = 'tag-no';
+
+            let respondioFormulario = inv.nombreFormulario !== '-' ? 'Sí' : 'No';
+
+            let limpioAcomp = inv.detalleFamilia ? inv.detalleFamilia.trim().toLowerCase() : "";
+            let tieneAcompanantesTexto = limpioAcomp !== "" && limpioAcomp !== "-" && limpioAcomp !== "0" && limpioAcomp !== "no" && limpioAcomp !== "ninguno" && limpioAcomp !== "ninguna" && limpioAcomp !== "sin acompañantes";
+
+            let htmlDetalleAcompanantes = '';
+            if (tieneAcompanantesTexto) {
+                let textoFormateado = inv.detalleFamilia.split('|').map(item => `• ${item.trim()}`).join('<br>');
+                htmlDetalleAcompanantes = `<div class="ficha-acompanantes">${textoFormateado}</div>`;
+            }
+
+            return `
+                <div class="ficha-invitado">
+                    <div class="ficha-nombre">${inv.nombre}</div>
+                    <div class="ficha-dato"><span class="ficha-label">Estado</span><span class="tag ${claseTag}">${inv.estado}</span></div>
+                    <div class="ficha-dato"><span class="ficha-label">Menú</span><span>${inv.menu}</span></div>
+                    <div class="ficha-dato"><span class="ficha-label">Mesa</span><span>${inv.mesaAsignada || 'Sin asignar'}</span></div>
+                    <div class="ficha-dato"><span class="ficha-label">Familia</span><span>${inv.familiaManual || 'Sin familia'}</span></div>
+                    <div class="ficha-dato"><span class="ficha-label">Acompañantes</span><span>${inv.acompaniantes}</span></div>
+                    <div class="ficha-dato"><span class="ficha-label">Formulario</span><span>${respondioFormulario}</span></div>
+                    ${htmlDetalleAcompanantes}
+                </div>
+            `;
+        }
+
+        function renderizarFichasInvitados() {
+            const contenedor = document.getElementById('fichas-invitados-contenedor');
+            if (!contenedor) return;
+            contenedor.innerHTML = '';
+
+            Object.keys(estructuraFamilias).forEach(nombreFamilia => {
+                let integrantes = estructuraFamilias[nombreFamilia].integrantes;
+                let fichasIntegrantes = integrantes.map(inv => generarFichaInvitado(inv)).join('');
+
+                contenedor.innerHTML += `
+                    <details class="familia-acordeon">
+                        <summary class="familia-resumen">
+                            👪 ${nombreFamilia}
+                            <span class="familia-resumen-detalle">${generarResumenFamilia(integrantes)}</span>
+                        </summary>
+                        <div class="ficha-grid">${fichasIntegrantes}</div>
+                    </details>
+                `;
+            });
+
+            if (invitadosIndividuales.length > 0) {
+                contenedor.innerHTML += `<div class="ficha-grid">${invitadosIndividuales.map(inv => generarFichaInvitado(inv)).join('')}</div>`;
+            }
+        }

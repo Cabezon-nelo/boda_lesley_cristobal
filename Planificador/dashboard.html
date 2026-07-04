@@ -24,7 +24,7 @@
 
         <nav>
             <button class="nav-btn active" onclick="cambiarPestaña('tab-stats')">Estadísticas</button>
-            <button class="nav-btn" onclick="cambiarPestaña('tab-lista')">Lista de Invitados</button>
+            <button class="nav-btn" onclick="cambiarPestaña('tab-lista')">Invitados</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-familias')">Gestión de Familias</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-mesas')">Crear Mesas</button>
             <button class="nav-btn" onclick="cambiarPestaña('tab-asignacion')">Asignación de Mesas</button>
@@ -56,36 +56,49 @@
             </div>
 
             <div id="tab-lista" class="tab-content">
-                <h2>Agregar Invitados a la Lista Oficial (Carga Masiva)</h2>
-                <p><small>Copia la columna de nombres de tu Excel y pégala aquí. El sistema agregará un invitado por cada línea.</small></p>
-                
-                <div class="form-group" style="align-items: flex-start;">
-                    <textarea id="inv-masivo" rows="5" placeholder="Ejemplo:&#10;Juan Pérez&#10;María González&#10;Pedro Rojas" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; min-width: 250px; font-family: inherit;"></textarea>
-                    <button class="btn" onclick="agregarInvitadosMasivo()" style="height: fit-content; margin-top: 2px;">Cargar Lista</button>
+                <div class="subnav">
+                    <button class="subtab-btn active" data-grupo="invitados" onclick="cambiarSubTab('invitados', 'sub-cargar-invitados')">Cargar Invitados</button>
+                    <button class="subtab-btn" data-grupo="invitados" onclick="cambiarSubTab('invitados', 'sub-fichas-invitados')">Fichas</button>
                 </div>
 
-                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+                <div id="sub-cargar-invitados" class="subtab-content active" data-grupo="invitados">
+                    <h2>Agregar Invitados a la Lista Oficial (Carga Masiva)</h2>
+                    <p><small>Copia la columna de nombres de tu Excel y pégala aquí. El sistema agregará un invitado por cada línea.</small></p>
 
-                <h2>Lista de Invitados Oficial vs. Respuesta</h2>
-                <div style="text-align: right; margin-bottom: 15px;">
-                    <button class="btn btn-success" onclick="descargarExcelInvitados()">📊 Descargar Lista en Excel</button>
+                    <div class="form-group" style="align-items: flex-start;">
+                        <textarea id="inv-masivo" rows="5" placeholder="Ejemplo:&#10;Juan Pérez&#10;María González&#10;Pedro Rojas" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; min-width: 250px; font-family: inherit;"></textarea>
+                        <button class="btn" onclick="agregarInvitadosMasivo()" style="height: fit-content; margin-top: 2px;">Cargar Lista</button>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+                    <h2>Lista de Invitados Oficial vs. Respuesta</h2>
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <button class="btn btn-success" onclick="descargarExcelInvitados()">📊 Descargar Lista en Excel</button>
+                    </div>
+                    <p><small>*Aquí se cruzan tus invitados ingresados con lo que responden en el formulario web.</small></p>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nombre Invitado</th>
+                                    <th>Estado de Respuesta</th>
+                                    <th>Menú Elegido</th>
+                                    <th>Acompañantes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-lista-oficial"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <p><small>*Aquí se cruzan tus invitados ingresados con lo que responden en el formulario web.</small></p>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre Invitado</th>
-                                <th>Estado de Respuesta</th>
-                                <th>Menú Elegido</th>
-                                <th>Acompañantes</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-lista-oficial"></tbody>
-                    </table>
+
+                <div id="sub-fichas-invitados" class="subtab-content" data-grupo="invitados">
+                    <h2>Fichas de Invitados</h2>
+                    <p><small>Vista rápida por invitado. Por ahora es solo informativa — editar, eliminar o mover desde aquí llegará cuando actualicemos el backend.</small></p>
+                    <div id="fichas-invitados-contenedor"></div>
                 </div>
             </div>
-            
+
             <div id="tab-familias" class="tab-content">
                 <h2>Crear o Modificar Grupos Familiares</h2>
                     <p><small>Selecciona los invitados de la lista de abajo, asígnales un nombre de familia y agrúpalos para que el sistema los mueva y contabilice juntos.</small></p>
