@@ -392,7 +392,7 @@
     <section id="fotos" class="page-section">
         <h2 class="section-title">Álbum Compartido</h2>
         <p class="details-text">Ayúdanos a capturar cada momento mágico de nuestra boda. Sube tus fotos y videos a nuestra aplicación para que todos podamos recordarlo.</p>
-        <a href=" https://photos.app.goo.gl/bLAgTnmmYLK6TzJf7" target="_blank" class="btn-primary">Abrir Álbum de Fotos</a>
+        <a href="https://photos.app.goo.gl/bLAgTnmmYLK6TzJf7" target="_blank" class="btn-primary">Abrir Álbum de Fotos</a>
         
     </section>
 
@@ -586,16 +586,25 @@
                 });
             }
 
+            // Nota: se usa 'text/plain' (no 'application/json') a propósito para que el navegador
+            // no dispare un preflight OPTIONS, que Apps Script no responde. El body sigue siendo
+            // JSON válido; el backend lo parsea igual con JSON.parse(e.postData.contents).
             fetch(WEB_APP_URL, {
                 method: 'POST',
-                mode: 'no-cors', 
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(payload)
             })
-            .then(() => {
-                alert("¡Muchas gracias! Tu confirmación ha sido registrada.");
-                document.getElementById('rsvpForm').reset();
-                document.getElementById('detallesTitular').classList.add('hidden');
+            .then(response => response.json())
+            .then(resultado => {
+                if (resultado.status === 'success') {
+                    alert("¡Muchas gracias! Tu confirmación ha sido registrada.");
+                    document.getElementById('rsvpForm').reset();
+                    document.getElementById('detallesTitular').classList.add('hidden');
+                } else if (resultado.status === 'duplicado') {
+                    alert(resultado.message || "Ya hemos recibido una confirmación bajo este nombre.");
+                } else {
+                    alert("Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+                }
                 btnEnviar.innerText = "Enviar Confirmación";
                 btnEnviar.disabled = false;
             })
