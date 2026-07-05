@@ -210,14 +210,15 @@
             // novios: no oculta ni descuenta nada por sí sola (ver ignorarPosibleDuplicado).
             posiblesDuplicados = [];
             let paresYaVistos = new Set();
+            let frecuenciaTokens = calcularFrecuenciaTokens(invitadosCotejados);
             invitadosCotejados.forEach((inv, i) => {
                 let candidatos = extraerNombresCandidatos(inv.detalleFamilia);
                 if (candidatos.length === 0) return;
                 invitadosCotejados.forEach((otro, j) => {
                     if (i === j) return;
                     let coincide = candidatos.some(candidato =>
-                        coincideParcialmente(candidato, otro.nombre) ||
-                        coincideParcialmente(candidato, otro.nombreFormulario)
+                        coincideParcialmente(candidato, otro.nombre, frecuenciaTokens) ||
+                        coincideParcialmente(candidato, otro.nombreFormulario, frecuenciaTokens)
                     );
                     if (coincide) {
                         let claveParDePar = [inv.filaExcel, otro.filaExcel].sort().join('|');

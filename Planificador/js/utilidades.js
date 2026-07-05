@@ -75,9 +75,24 @@
         // "Maylink Saldaña Crespo (Menú: tradicional)" -> "Maylink Saldaña Crespo"
         function extraerNombresCandidatos(textoAcompanantes) {
             if (!textoAcompanantes) return [];
-            return textoAcompanantes.toString().split('|')
+            // Se separa por "|" y también por " y " sueltos ("Fulano y Zutana"), ya que
+            // algunos respondieron el nombre de la pareja como un solo texto sin usar "|".
+            return textoAcompanantes.toString().split(/\||\s+y\s+/i)
                 .map(item => item.replace(/\(.*$/, '').trim())
                 .filter(nombre => nombre !== '');
+        }
+
+        // Calcula, para un conjunto de invitados, cuántos de ellos tienen cada palabra
+        // (de 3+ letras) en su propio nombre. Sirve para no confiar en apellidos que se
+        // repiten mucho en esta lista en particular (ej. "Crespo" si hay varias familias
+        // con ese apellido) - ver coincideParcialmente.
+        function calcularFrecuenciaTokens(invitados) {
+            let frecuencia = {};
+            invitados.forEach(inv => {
+                let tokensUnicos = new Set(limpiarTexto(inv.nombre).split(/\s+/).filter(t => t.length >= 3));
+                tokensUnicos.forEach(t => { frecuencia[t] = (frecuencia[t] || 0) + 1; });
+            });
+            return frecuencia;
         }
 
         // Coincidencia laxa a propósito: compara por apellidos/palabras compartidas
@@ -85,11 +100,21 @@
         // invitado puede aparecer con variaciones ("Juan Rojas Vila" vs "Osvaldo Rojas
         // Vila", o con un nombre extra en medio). Es solo una advertencia para revisión
         // manual, así que preferimos detectar de más antes que dejar pasar el caso real.
-        function coincideParcialmente(nombreA, nombreB) {
+        //
+        // Si se pasa frecuenciaTokens (ver calcularFrecuenciaTokens), se exige que al
+        // menos 2 de las palabras compartidas sean poco frecuentes en esta lista -
+        // así "Crespo" solo (compartido por muchas familias distintas) no alcanza para
+        // marcar un posible duplicado por sí solo.
+        function coincideParcialmente(nombreA, nombreB, frecuenciaTokens) {
             let tokensA = limpiarTexto(nombreA).split(/\s+/).filter(t => t.length >= 3);
             let tokensB = limpiarTexto(nombreB).split(/\s+/).filter(t => t.length >= 3);
             let comunes = tokensA.filter(t => tokensB.includes(t));
-            return comunes.length >= 2;
+            if (comunes.length < 2) return false;
+            if (!frecuenciaTokens) return true;
+
+            const UMBRAL_TOKEN_COMUN = 3;
+            let comunesDistintivos = comunes.filter(t => (frecuenciaTokens[t] || 0) < UMBRAL_TOKEN_COMUN);
+            return comunesDistintivos.length >= 2;
         }
 
         const CLAVE_DUPLICADOS_IGNORADOS = 'boda_duplicados_ignorados';
