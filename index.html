@@ -597,7 +597,11 @@
             .then(response => response.json())
             .then(resultado => {
                 if (resultado.status === 'success') {
-                    alert("¡Muchas gracias! Tu confirmación ha sido registrada.");
+                    let mensajeExito = "¡Muchas gracias! Tu confirmación ha sido registrada.";
+                    if (resultado.advertencia) {
+                        mensajeExito += "\n\n" + resultado.advertencia;
+                    }
+                    alert(mensajeExito);
                     document.getElementById('rsvpForm').reset();
                     document.getElementById('detallesTitular').classList.add('hidden');
                 } else if (resultado.status === 'duplicado') {
