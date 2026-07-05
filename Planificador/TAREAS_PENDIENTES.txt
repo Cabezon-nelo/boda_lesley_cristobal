@@ -27,6 +27,33 @@ MÓDULOS DEL CATÁLOGO ORIGINAL AÚN NO CONSTRUIDOS
    - Requiere Apps Script: activar/desactivar el formulario público y
      que una fecha límite realmente bloquee nuevas respuestas.
 
+3) IDEA NUEVA (2026-07-04, sin numerar todavía en el catálogo original)
+   - Itinerario de Actividades
+   Objetivo: que los novios puedan crear y ordenar un itinerario de
+   actividades del día del evento (ej: 17:00 Ceremonia, 19:00 Cóctel,
+   20:30 Cena, 22:00 Primer baile...) y descargarlo en PDF ya
+   formateado para entregárselo a la producción/coordinador del
+   evento.
+   - Parte que ya sabemos cómo hacer (frontend-only, mismo patrón que
+     el resto del dashboard): una lista editable de actividades
+     (hora + nombre + descripción opcional), reordenable, exportada a
+     PDF con html2pdf (ya está cargado en el proyecto) igual que se
+     hace hoy con las tarjetas de mesa.
+   - Parte abierta / sin resolver todavía: el propio usuario no está
+     seguro cómo incorporar la sugerencia de "opciones y actividades
+     populares". Ideas a evaluar más adelante, ninguna decidida:
+       a) Una lista estática curada a mano (actividades típicas de
+          boda chilena: ceremonia, cóctel, entrada de novios, primer
+          baile, torta, lanzamiento del ramo, etc.) que el usuario
+          pueda agregar con un clic - sin IA, sin backend nuevo.
+       b) Alguna integración con un modelo de lenguaje (LLM) para
+          sugerir actividades - esto sí implica decisiones nuevas
+          (qué proveedor, costos, si se llama desde el navegador o
+          desde Apps Script, privacidad de los datos que se envíen).
+     Conviene retomar esto con una conversación de diseño aparte antes
+     de programar nada, dado que la opción (b) cambia bastante el
+     alcance del proyecto.
+
 TRABAJO DE APPS SCRIPT (pospuesto a propósito durante este trabajo)
 --------------------------------------------------
 El usuario decidió no tocar el backend por ahora. Cuando se retome,
