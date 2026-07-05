@@ -117,38 +117,27 @@
             return comunesDistintivos.length >= 2;
         }
 
-        const CLAVE_DUPLICADOS_IGNORADOS = 'boda_duplicados_ignorados';
-
-        function obtenerDuplicadosIgnorados() {
+        // Marca/desmarca en la hoja (columna "Respuesta Ignorada" de "Respuestas") una
+        // respuesta como "ya revisado, es un duplicado real". Se guarda en el backend
+        // (no en localStorage) para que se vea igual en cualquier dispositivo.
+        async function marcarDuplicadoIgnorado(filaExcel, ignorado) {
             try {
-                return JSON.parse(localStorage.getItem(CLAVE_DUPLICADOS_IGNORADOS)) || [];
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({ accion: 'marcar_duplicado_ignorado', fila: filaExcel, ignorado: ignorado })
+                });
+                await cargarDatosDesdeExcel();
             } catch (e) {
-                return [];
+                alert("No se pudo guardar el cambio. Intenta de nuevo.");
             }
         }
 
-        function estaIgnoradoComoDuplicado(filaExcel) {
-            if (filaExcel === null || filaExcel === undefined) return false;
-            return obtenerDuplicadosIgnorados().includes(filaExcel);
-        }
-
-        // Marca una respuesta como "ya revisado, es un duplicado real": se excluye de
-        // los conteos hasta que se reactive. No borra nada de la hoja de cálculo.
         function ignorarPosibleDuplicado(filaExcel) {
-            let ignorados = obtenerDuplicadosIgnorados();
-            if (!ignorados.includes(filaExcel)) {
-                ignorados.push(filaExcel);
-                localStorage.setItem(CLAVE_DUPLICADOS_IGNORADOS, JSON.stringify(ignorados));
-            }
-            realizarCotejo();
-            renderizarTodo();
+            return marcarDuplicadoIgnorado(filaExcel, true);
         }
 
         function reactivarPosibleDuplicado(filaExcel) {
-            let ignorados = obtenerDuplicadosIgnorados().filter(f => f !== filaExcel);
-            localStorage.setItem(CLAVE_DUPLICADOS_IGNORADOS, JSON.stringify(ignorados));
-            realizarCotejo();
-            renderizarTodo();
+            return marcarDuplicadoIgnorado(filaExcel, false);
         }
 
         function generarResumenFamilia(integrantes) {

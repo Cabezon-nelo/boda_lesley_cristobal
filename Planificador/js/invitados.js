@@ -138,3 +138,31 @@
                 `;
             }).join('');
         }
+
+        // Lista de respuestas marcadas como "duplicado ignorado" (columna "Respuesta
+        // Ignorada" en la hoja), con botón para revertir por si se marcó por error.
+        function renderizarDuplicadosIgnorados() {
+            const contenedor = document.getElementById('duplicados-ignorados-contenedor');
+            if (!contenedor) return;
+
+            if (!respuestasIgnoradasDuplicado || respuestasIgnoradasDuplicado.length === 0) {
+                contenedor.innerHTML = '';
+                return;
+            }
+
+            contenedor.innerHTML = `
+                <details style="margin-bottom: 15px;">
+                    <summary style="cursor:pointer; color:#888;">
+                        ${respuestasIgnoradasDuplicado.length} respuesta(s) marcadas como duplicado ignorado
+                    </summary>
+                    <div style="margin-top:10px;">
+                        ${respuestasIgnoradasDuplicado.map(inv => `
+                            <div style="padding:8px 0; border-bottom:1px solid #eee;">
+                                "${inv.nombreFormulario}" no se está contando en el panel.
+                                <button class="btn" onclick="reactivarPosibleDuplicado(${JSON.stringify(inv.filaExcel)})">Reactivar</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </details>
+            `;
+        }

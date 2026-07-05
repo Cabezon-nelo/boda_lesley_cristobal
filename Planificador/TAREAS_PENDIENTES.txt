@@ -140,20 +140,32 @@ Se agregó (Planificador/js/app.js, utilidades.js, invitados.js):
   respuesta contra el nombre de todas las demás, usando coincidencia por
   apellidos/palabras compartidas (no nombre exacto), para cubrir variaciones
   como las del caso real. Guarda los pares encontrados en posiblesDuplicados.
+- Para no disparar avisos solo por un apellido común entre varias familias
+  distintas (pasó en la prueba real con "Crespo"), se exige que al menos 2
+  de las palabras compartidas sean poco frecuentes en la lista de invitados
+  actual (calcularFrecuenciaTokens) - un apellido repetido por sí solo ya
+  no alcanza. También se separa el texto de acompañantes por " y " además
+  de "|", para no mezclar a 2 personas en un solo candidato.
 - Aviso visual en la subpestaña "Cargar Invitados" listando cada par
-  detectado, con un botón para "ignorar" una de las 2 respuestas (se guarda
-  en localStorage, no se borra nada de la hoja). Reversible.
+  detectado, con un botón para "ignorar" una de las 2 respuestas.
+- La marca de "ignorado" se guarda en la hoja de cálculo (columna I,
+  "Respuesta Ignorada", en la pestaña "Respuestas" del Planificador), no en
+  localStorage - así se ve igual desde cualquier dispositivo. Requiere que
+  el usuario haya agregado esa columna manualmente y redeployado el Apps
+  Script del Planificador con la acción nueva "marcar_duplicado_ignorado"
+  (doPost) y el doGet ampliado a 9 columnas.
+- Hay una lista aparte ("N respuesta(s) marcadas como duplicado ignorado")
+  con botón "Reactivar" para deshacer un ignorado por error.
 - Es solo una alerta para revisión manual de los novios - no fusiona ni
-  borra datos automáticamente. Puede haber falsos positivos (2 invitados
-  reales que comparten apellidos comunes) a propósito, para no dejar
-  pasar casos reales.
+  borra datos automáticamente. Puede haber falsos positivos a propósito,
+  para no dejar pasar casos reales.
 
-Pendiente (decisión del usuario: solo advertir, no bloquear el envío):
-agregar en el Apps Script (doPost) una revisión equivalente al recibir un
-nuevo envío del formulario público, para avisar (no rechazar) si el
-nombre ingresado coincide con el texto de acompañantes de una fila ya
-guardada. No implementado todavía - el snippet listo para pegar se le
-entregó al usuario aparte (Apps Script no vive en este repo).
+Ya implementado y desplegado por el usuario (formulario público, no
+bloquea el envío, solo advierte): el Apps Script del RSVP público también
+tiene una revisión equivalente que agrega un campo "advertencia" a la
+respuesta de éxito si el nombre ingresado coincide con un acompañante ya
+registrado en otra fila. index.html ya muestra ese aviso junto al mensaje
+de confirmación.
 
 NOTA OPERATIVA: GitHub Pages se queda "pegado"
 --------------------------------------------------

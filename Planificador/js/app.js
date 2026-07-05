@@ -9,6 +9,7 @@
         let estructuraFamilias = {};
         let invitadosIndividuales = [];
         let posiblesDuplicados = [];
+        let respuestasIgnoradasDuplicado = [];
 
         window.onload = function() {
             const token = localStorage.getItem('token_novios');
@@ -142,7 +143,8 @@
                         familiaManual: respForm.familia || "",
                         mesaAsignada: respForm.mesa || "",
                         filaExcel: respForm.fila,
-                        enListaOficial: true
+                        enListaOficial: true,
+                        ignoradoDuplicado: !!respForm.respuestaIgnorada
                     });
                 } else {
                     invitadosCotejados.push({
@@ -155,7 +157,8 @@
                         familiaManual: respForm ? (respForm.familia || "") : "",
                         mesaAsignada: "",
                         filaExcel: null,
-                        enListaOficial: true
+                        enListaOficial: true,
+                        ignoradoDuplicado: false
                     });
                 }
             });
@@ -178,15 +181,20 @@
                         familiaManual: respForm.familia || "",
                         mesaAsignada: respForm.mesa || "",
                         filaExcel: respForm.fila,
-                        enListaOficial: false
+                        enListaOficial: false,
+                        ignoradoDuplicado: !!respForm.respuestaIgnorada
                     });
                 }
             });
 
+            // Guardamos aparte quiénes están ignorados hoy (para el botón "Reactivar"),
+            // antes de excluirlos de invitadosCotejados.
+            respuestasIgnoradasDuplicado = invitadosCotejados.filter(inv => inv.ignoradoDuplicado);
+
             // Excluimos de los conteos las respuestas que los novios ya marcaron como
-            // "posible duplicado ignorado" (ver ignorarPosibleDuplicado en utilidades.js).
-            // No se borra nada de la hoja: es solo un filtro local reversible.
-            invitadosCotejados = invitadosCotejados.filter(inv => !estaIgnoradoComoDuplicado(inv.filaExcel));
+            // "posible duplicado ignorado" (columna "Respuesta Ignorada" en la hoja,
+            // ver ignorarPosibleDuplicado en utilidades.js). No se borra nada más de la hoja.
+            invitadosCotejados = invitadosCotejados.filter(inv => !inv.ignoradoDuplicado);
 
             // FASE 3: Derivar la estructura de familias e individuales a partir del cotejo,
             // para que el render ya no tenga que volver a agrupar invitados.
@@ -238,6 +246,7 @@
             renderizarGraficoMenus();
             renderizarGraficoMesasOcupacion();
             renderizarAlertaDuplicados();
+            renderizarDuplicadosIgnorados();
             renderizarListaInvitados();
             renderizarFichasInvitados();
             renderizarMesasVisual();
