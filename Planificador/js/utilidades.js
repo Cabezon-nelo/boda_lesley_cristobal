@@ -120,24 +120,35 @@
         // Marca/desmarca en la hoja (columna "Respuesta Ignorada" de "Respuestas") una
         // respuesta como "ya revisado, es un duplicado real". Se guarda en el backend
         // (no en localStorage) para que se vea igual en cualquier dispositivo.
-        async function marcarDuplicadoIgnorado(filaExcel, ignorado) {
+        async function marcarDuplicadoIgnorado(filaExcel, ignorado, boton) {
+            let textoOriginal = boton ? boton.innerText : null;
+            if (boton) {
+                boton.disabled = true;
+                boton.innerText = "Guardando... ⏳";
+            }
             try {
                 await fetch(URL_GOOGLE_SCRIPT, {
                     method: 'POST',
                     body: JSON.stringify({ accion: 'marcar_duplicado_ignorado', fila: filaExcel, ignorado: ignorado })
                 });
+                // cargarDatosDesdeExcel() vuelve a pintar toda la sección, así que el botón
+                // actual desaparece o cambia de estado solo - no hace falta restaurarlo aquí.
                 await cargarDatosDesdeExcel();
             } catch (e) {
                 alert("No se pudo guardar el cambio. Intenta de nuevo.");
+                if (boton) {
+                    boton.disabled = false;
+                    boton.innerText = textoOriginal;
+                }
             }
         }
 
-        function ignorarPosibleDuplicado(filaExcel) {
-            return marcarDuplicadoIgnorado(filaExcel, true);
+        function ignorarPosibleDuplicado(filaExcel, boton) {
+            return marcarDuplicadoIgnorado(filaExcel, true, boton);
         }
 
-        function reactivarPosibleDuplicado(filaExcel) {
-            return marcarDuplicadoIgnorado(filaExcel, false);
+        function reactivarPosibleDuplicado(filaExcel, boton) {
+            return marcarDuplicadoIgnorado(filaExcel, false, boton);
         }
 
         function generarResumenFamilia(integrantes) {

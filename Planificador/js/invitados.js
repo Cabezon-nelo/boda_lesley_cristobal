@@ -125,7 +125,7 @@
             contenedor.innerHTML = posiblesDuplicados.map(par => {
                 let botonesIgnorar = [par.origen, par.coincideCon]
                     .filter(inv => inv.enListaOficial === false)
-                    .map(inv => `<button class="btn" onclick="ignorarPosibleDuplicado(${JSON.stringify(inv.filaExcel)})">Ignorar respuesta de "${inv.nombreFormulario}"</button>`)
+                    .map(inv => `<button class="btn" onclick="ignorarPosibleDuplicado(${JSON.stringify(inv.filaExcel)}, this)">Ignorar respuesta de "${inv.nombreFormulario}"</button>`)
                     .join(' ');
 
                 return `
@@ -159,7 +159,7 @@
                         ${respuestasIgnoradasDuplicado.map(inv => `
                             <div style="padding:8px 0; border-bottom:1px solid #eee;">
                                 "${inv.nombreFormulario}" no se está contando en el panel.
-                                <button class="btn" onclick="reactivarPosibleDuplicado(${JSON.stringify(inv.filaExcel)})">Reactivar</button>
+                                <button class="btn" onclick="reactivarPosibleDuplicado(${JSON.stringify(inv.filaExcel)}, this)">Reactivar</button>
                             </div>
                         `).join('')}
                     </div>
