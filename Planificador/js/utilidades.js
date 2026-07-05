@@ -68,6 +68,89 @@
             `;
         }
 
+        // --- DETECCIÓN DE POSIBLES DUPLICADOS (acompañante que también respondió solo) ---
+
+        // Del texto libre de acompañantes (separado por "|") extrae solo los nombres,
+        // descartando el paréntesis de menú/restricción, ej:
+        // "Maylink Saldaña Crespo (Menú: tradicional)" -> "Maylink Saldaña Crespo"
+        function extraerNombresCandidatos(textoAcompanantes) {
+            if (!textoAcompanantes) return [];
+            // Se separa por "|" y también por " y " sueltos ("Fulano y Zutana"), ya que
+            // algunos respondieron el nombre de la pareja como un solo texto sin usar "|".
+            return textoAcompanantes.toString().split(/\||\s+y\s+/i)
+                .map(item => item.replace(/\(.*$/, '').trim())
+                .filter(nombre => nombre !== '');
+        }
+
+        // Calcula, para un conjunto de invitados, cuántos de ellos tienen cada palabra
+        // (de 3+ letras) en su propio nombre. Sirve para no confiar en apellidos que se
+        // repiten mucho en esta lista en particular (ej. "Crespo" si hay varias familias
+        // con ese apellido) - ver coincideParcialmente.
+        function calcularFrecuenciaTokens(invitados) {
+            let frecuencia = {};
+            invitados.forEach(inv => {
+                let tokensUnicos = new Set(limpiarTexto(inv.nombre).split(/\s+/).filter(t => t.length >= 3));
+                tokensUnicos.forEach(t => { frecuencia[t] = (frecuencia[t] || 0) + 1; });
+            });
+            return frecuencia;
+        }
+
+        // Coincidencia laxa a propósito: compara por apellidos/palabras compartidas
+        // (no por "el nombre completo calza exacto"), porque en la práctica el mismo
+        // invitado puede aparecer con variaciones ("Juan Rojas Vila" vs "Osvaldo Rojas
+        // Vila", o con un nombre extra en medio). Es solo una advertencia para revisión
+        // manual, así que preferimos detectar de más antes que dejar pasar el caso real.
+        //
+        // Si se pasa frecuenciaTokens (ver calcularFrecuenciaTokens), se exige que al
+        // menos 2 de las palabras compartidas sean poco frecuentes en esta lista -
+        // así "Crespo" solo (compartido por muchas familias distintas) no alcanza para
+        // marcar un posible duplicado por sí solo.
+        function coincideParcialmente(nombreA, nombreB, frecuenciaTokens) {
+            let tokensA = limpiarTexto(nombreA).split(/\s+/).filter(t => t.length >= 3);
+            let tokensB = limpiarTexto(nombreB).split(/\s+/).filter(t => t.length >= 3);
+            let comunes = tokensA.filter(t => tokensB.includes(t));
+            if (comunes.length < 2) return false;
+            if (!frecuenciaTokens) return true;
+
+            const UMBRAL_TOKEN_COMUN = 3;
+            let comunesDistintivos = comunes.filter(t => (frecuenciaTokens[t] || 0) < UMBRAL_TOKEN_COMUN);
+            return comunesDistintivos.length >= 2;
+        }
+
+        // Marca/desmarca en la hoja (columna "Respuesta Ignorada" de "Respuestas") una
+        // respuesta como "ya revisado, es un duplicado real". Se guarda en el backend
+        // (no en localStorage) para que se vea igual en cualquier dispositivo.
+        async function marcarDuplicadoIgnorado(filaExcel, ignorado, boton) {
+            let textoOriginal = boton ? boton.innerText : null;
+            if (boton) {
+                boton.disabled = true;
+                boton.innerText = "Guardando... ⏳";
+            }
+            try {
+                await fetch(URL_GOOGLE_SCRIPT, {
+                    method: 'POST',
+                    body: JSON.stringify({ accion: 'marcar_duplicado_ignorado', fila: filaExcel, ignorado: ignorado })
+                });
+                // cargarDatosDesdeExcel() vuelve a pintar toda la sección, así que el botón
+                // actual desaparece o cambia de estado solo - no hace falta restaurarlo aquí.
+                await cargarDatosDesdeExcel();
+            } catch (e) {
+                alert("No se pudo guardar el cambio. Intenta de nuevo.");
+                if (boton) {
+                    boton.disabled = false;
+                    boton.innerText = textoOriginal;
+                }
+            }
+        }
+
+        function ignorarPosibleDuplicado(filaExcel, boton) {
+            return marcarDuplicadoIgnorado(filaExcel, true, boton);
+        }
+
+        function reactivarPosibleDuplicado(filaExcel, boton) {
+            return marcarDuplicadoIgnorado(filaExcel, false, boton);
+        }
+
         function generarResumenFamilia(integrantes) {
             const esConfirmado = estado => estado.toLowerCase() === 'sí' || estado.toLowerCase() === 'si';
             const confirmados = integrantes.filter(i => esConfirmado(i.estado)).length;

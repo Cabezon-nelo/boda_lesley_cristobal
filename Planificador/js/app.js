@@ -1,5 +1,5 @@
         // --- CONFIGURACIÓN Y VARIABLES GLOBALES ---
-        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbzGuFMSYs5zF-xLZ0ADeDxjhW5Ay0jMPH8e6FRil5fX59uJC_yPYx_b2alyg3rCX0bSIw/exec";
+        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbw1PfF1Qc5IUjD5HvdjTrFb4dEWeYGZcZRPFHl-kpgJxEGwUIPCa46KAyTF51op1_ol3w/exec";
 
         let listaOficialNombres = [];
         let respuestasInvitados = [];
@@ -8,6 +8,8 @@
         let familiasDisponibles = [];
         let estructuraFamilias = {};
         let invitadosIndividuales = [];
+        let posiblesDuplicados = [];
+        let respuestasIgnoradasDuplicado = [];
 
         window.onload = function() {
             const token = localStorage.getItem('token_novios');
@@ -141,7 +143,8 @@
                         familiaManual: respForm.familia || "",
                         mesaAsignada: respForm.mesa || "",
                         filaExcel: respForm.fila,
-                        enListaOficial: true
+                        enListaOficial: true,
+                        ignoradoDuplicado: !!respForm.respuestaIgnorada
                     });
                 } else {
                     invitadosCotejados.push({
@@ -154,7 +157,8 @@
                         familiaManual: respForm ? (respForm.familia || "") : "",
                         mesaAsignada: "",
                         filaExcel: null,
-                        enListaOficial: true
+                        enListaOficial: true,
+                        ignoradoDuplicado: false
                     });
                 }
             });
@@ -177,10 +181,20 @@
                         familiaManual: respForm.familia || "",
                         mesaAsignada: respForm.mesa || "",
                         filaExcel: respForm.fila,
-                        enListaOficial: false
+                        enListaOficial: false,
+                        ignoradoDuplicado: !!respForm.respuestaIgnorada
                     });
                 }
             });
+
+            // Guardamos aparte quiénes están ignorados hoy (para el botón "Reactivar"),
+            // antes de excluirlos de invitadosCotejados.
+            respuestasIgnoradasDuplicado = invitadosCotejados.filter(inv => inv.ignoradoDuplicado);
+
+            // Excluimos de los conteos las respuestas que los novios ya marcaron como
+            // "posible duplicado ignorado" (columna "Respuesta Ignorada" en la hoja,
+            // ver ignorarPosibleDuplicado en utilidades.js). No se borra nada más de la hoja.
+            invitadosCotejados = invitadosCotejados.filter(inv => !inv.ignoradoDuplicado);
 
             // FASE 3: Derivar la estructura de familias e individuales a partir del cotejo,
             // para que el render ya no tenga que volver a agrupar invitados.
@@ -196,6 +210,33 @@
                     invitadosIndividuales.push(inv);
                 }
             });
+
+            // FASE 4: Detección de posibles duplicados. Puede pasar que alguien
+            // mencionado como acompañante (texto libre) también haya respondido el
+            // formulario por su cuenta, generando 2 registros para las mismas 2
+            // personas. Esto es solo una advertencia para revisión manual de los
+            // novios: no oculta ni descuenta nada por sí sola (ver ignorarPosibleDuplicado).
+            posiblesDuplicados = [];
+            let paresYaVistos = new Set();
+            let frecuenciaTokens = calcularFrecuenciaTokens(invitadosCotejados);
+            invitadosCotejados.forEach((inv, i) => {
+                let candidatos = extraerNombresCandidatos(inv.detalleFamilia);
+                if (candidatos.length === 0) return;
+                invitadosCotejados.forEach((otro, j) => {
+                    if (i === j) return;
+                    let coincide = candidatos.some(candidato =>
+                        coincideParcialmente(candidato, otro.nombre, frecuenciaTokens) ||
+                        coincideParcialmente(candidato, otro.nombreFormulario, frecuenciaTokens)
+                    );
+                    if (coincide) {
+                        let claveParDePar = [inv.filaExcel, otro.filaExcel].sort().join('|');
+                        if (!paresYaVistos.has(claveParDePar)) {
+                            paresYaVistos.add(claveParDePar);
+                            posiblesDuplicados.push({ origen: inv, coincideCon: otro });
+                        }
+                    }
+                });
+            });
         }
 
         // --- ORQUESTADOR DE RENDER: cada módulo pinta su propia sección ---
@@ -204,6 +245,8 @@
             renderizarGraficoAsistencia();
             renderizarGraficoMenus();
             renderizarGraficoMesasOcupacion();
+            renderizarAlertaDuplicados();
+            renderizarDuplicadosIgnorados();
             renderizarListaInvitados();
             renderizarFichasInvitados();
             renderizarMesasVisual();

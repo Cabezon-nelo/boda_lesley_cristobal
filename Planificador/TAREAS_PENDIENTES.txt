@@ -1,6 +1,6 @@
 TAREAS PENDIENTES - Panel de Boda (Planificador)
 ==================================================
-Última actualización: 2026-07-05
+Última actualización: 2026-07-05 (detección de posibles duplicados)
 
 Este archivo resume lo que falta por construir o decidir en el dashboard,
 para retomarlo más adelante sin perder el contexto de las decisiones ya
@@ -123,6 +123,49 @@ Se sigue sin tocar el resto del archivo (detalles bancarios, mapa,
 álbum, "próximamente" en la sección de mesas) - evaluar más adelante
 si conviene una limpieza o una redirección hacia el dashboard nuevo
 para esa sección, igual que se hizo con Dashboard_novios.html.
+
+DETECCIÓN DE POSIBLES DUPLICADOS - agregado el 2026-07-05
+--------------------------------------------------
+Caso real detectado por el usuario: un invitado responde el formulario y
+menciona a su acompañante como texto libre (ej. "Maylink Saldaña Crespo"),
+pero esa misma persona también responde el formulario por su cuenta con
+una variación del nombre (ej. "Maylink Juriddia Saldaña Crespo"). Como el
+backend solo rechaza duplicados por nombre EXACTO, ambos envíos se
+guardan, y el dashboard terminaba mostrando 2 "familias"/invitados
+separados para las mismas 2 personas (doble conteo en asistencia, menús
+y mesas).
+
+Se agregó (Planificador/js/app.js, utilidades.js, invitados.js):
+- FASE 4 en realizarCotejo(): compara el texto de "acompañantes" de cada
+  respuesta contra el nombre de todas las demás, usando coincidencia por
+  apellidos/palabras compartidas (no nombre exacto), para cubrir variaciones
+  como las del caso real. Guarda los pares encontrados en posiblesDuplicados.
+- Para no disparar avisos solo por un apellido común entre varias familias
+  distintas (pasó en la prueba real con "Crespo"), se exige que al menos 2
+  de las palabras compartidas sean poco frecuentes en la lista de invitados
+  actual (calcularFrecuenciaTokens) - un apellido repetido por sí solo ya
+  no alcanza. También se separa el texto de acompañantes por " y " además
+  de "|", para no mezclar a 2 personas en un solo candidato.
+- Aviso visual en la subpestaña "Cargar Invitados" listando cada par
+  detectado, con un botón para "ignorar" una de las 2 respuestas.
+- La marca de "ignorado" se guarda en la hoja de cálculo (columna I,
+  "Respuesta Ignorada", en la pestaña "Respuestas" del Planificador), no en
+  localStorage - así se ve igual desde cualquier dispositivo. Requiere que
+  el usuario haya agregado esa columna manualmente y redeployado el Apps
+  Script del Planificador con la acción nueva "marcar_duplicado_ignorado"
+  (doPost) y el doGet ampliado a 9 columnas.
+- Hay una lista aparte ("N respuesta(s) marcadas como duplicado ignorado")
+  con botón "Reactivar" para deshacer un ignorado por error.
+- Es solo una alerta para revisión manual de los novios - no fusiona ni
+  borra datos automáticamente. Puede haber falsos positivos a propósito,
+  para no dejar pasar casos reales.
+
+Ya implementado y desplegado por el usuario (formulario público, no
+bloquea el envío, solo advierte): el Apps Script del RSVP público también
+tiene una revisión equivalente que agrega un campo "advertencia" a la
+respuesta de éxito si el nombre ingresado coincide con un acompañante ya
+registrado en otra fila. index.html ya muestra ese aviso junto al mensaje
+de confirmación.
 
 NOTA OPERATIVA: GitHub Pages se queda "pegado"
 --------------------------------------------------
