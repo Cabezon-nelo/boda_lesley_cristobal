@@ -137,6 +137,18 @@
         .tag-no { background: #ffebee; color: #c62828; }
         .tag-pendiente { background: #fff3e0; color: #ef6c00; }
 
+        /* Alerta de posibles duplicados (invitados.js) */
+        .alerta-duplicado {
+            background: #fff3e0;
+            color: #6d4c00;
+            border-left: 4px solid #ef6c00;
+            border-radius: 0 6px 6px 0;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+        .alerta-duplicado .btn { font-size: 0.85em; padding: 6px 10px; }
+
         /* Panel Visual de Mesas */
         .mesa-galeria { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin-top: 20px; }
         .mesa-card {

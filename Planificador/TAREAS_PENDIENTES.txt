@@ -1,6 +1,6 @@
 TAREAS PENDIENTES - Panel de Boda (Planificador)
 ==================================================
-Última actualización: 2026-07-05
+Última actualización: 2026-07-05 (detección de posibles duplicados)
 
 Este archivo resume lo que falta por construir o decidir en el dashboard,
 para retomarlo más adelante sin perder el contexto de las decisiones ya
@@ -123,6 +123,37 @@ Se sigue sin tocar el resto del archivo (detalles bancarios, mapa,
 álbum, "próximamente" en la sección de mesas) - evaluar más adelante
 si conviene una limpieza o una redirección hacia el dashboard nuevo
 para esa sección, igual que se hizo con Dashboard_novios.html.
+
+DETECCIÓN DE POSIBLES DUPLICADOS - agregado el 2026-07-05
+--------------------------------------------------
+Caso real detectado por el usuario: un invitado responde el formulario y
+menciona a su acompañante como texto libre (ej. "Maylink Saldaña Crespo"),
+pero esa misma persona también responde el formulario por su cuenta con
+una variación del nombre (ej. "Maylink Juriddia Saldaña Crespo"). Como el
+backend solo rechaza duplicados por nombre EXACTO, ambos envíos se
+guardan, y el dashboard terminaba mostrando 2 "familias"/invitados
+separados para las mismas 2 personas (doble conteo en asistencia, menús
+y mesas).
+
+Se agregó (Planificador/js/app.js, utilidades.js, invitados.js):
+- FASE 4 en realizarCotejo(): compara el texto de "acompañantes" de cada
+  respuesta contra el nombre de todas las demás, usando coincidencia por
+  apellidos/palabras compartidas (no nombre exacto), para cubrir variaciones
+  como las del caso real. Guarda los pares encontrados en posiblesDuplicados.
+- Aviso visual en la subpestaña "Cargar Invitados" listando cada par
+  detectado, con un botón para "ignorar" una de las 2 respuestas (se guarda
+  en localStorage, no se borra nada de la hoja). Reversible.
+- Es solo una alerta para revisión manual de los novios - no fusiona ni
+  borra datos automáticamente. Puede haber falsos positivos (2 invitados
+  reales que comparten apellidos comunes) a propósito, para no dejar
+  pasar casos reales.
+
+Pendiente (decisión del usuario: solo advertir, no bloquear el envío):
+agregar en el Apps Script (doPost) una revisión equivalente al recibir un
+nuevo envío del formulario público, para avisar (no rechazar) si el
+nombre ingresado coincide con el texto de acompañantes de una fila ya
+guardada. No implementado todavía - el snippet listo para pegar se le
+entregó al usuario aparte (Apps Script no vive en este repo).
 
 NOTA OPERATIVA: GitHub Pages se queda "pegado"
 --------------------------------------------------

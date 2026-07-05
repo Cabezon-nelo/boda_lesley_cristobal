@@ -68,6 +68,64 @@
             `;
         }
 
+        // --- DETECCIÓN DE POSIBLES DUPLICADOS (acompañante que también respondió solo) ---
+
+        // Del texto libre de acompañantes (separado por "|") extrae solo los nombres,
+        // descartando el paréntesis de menú/restricción, ej:
+        // "Maylink Saldaña Crespo (Menú: tradicional)" -> "Maylink Saldaña Crespo"
+        function extraerNombresCandidatos(textoAcompanantes) {
+            if (!textoAcompanantes) return [];
+            return textoAcompanantes.toString().split('|')
+                .map(item => item.replace(/\(.*$/, '').trim())
+                .filter(nombre => nombre !== '');
+        }
+
+        // Coincidencia laxa a propósito: compara por apellidos/palabras compartidas
+        // (no por "el nombre completo calza exacto"), porque en la práctica el mismo
+        // invitado puede aparecer con variaciones ("Juan Rojas Vila" vs "Osvaldo Rojas
+        // Vila", o con un nombre extra en medio). Es solo una advertencia para revisión
+        // manual, así que preferimos detectar de más antes que dejar pasar el caso real.
+        function coincideParcialmente(nombreA, nombreB) {
+            let tokensA = limpiarTexto(nombreA).split(/\s+/).filter(t => t.length >= 3);
+            let tokensB = limpiarTexto(nombreB).split(/\s+/).filter(t => t.length >= 3);
+            let comunes = tokensA.filter(t => tokensB.includes(t));
+            return comunes.length >= 2;
+        }
+
+        const CLAVE_DUPLICADOS_IGNORADOS = 'boda_duplicados_ignorados';
+
+        function obtenerDuplicadosIgnorados() {
+            try {
+                return JSON.parse(localStorage.getItem(CLAVE_DUPLICADOS_IGNORADOS)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function estaIgnoradoComoDuplicado(filaExcel) {
+            if (filaExcel === null || filaExcel === undefined) return false;
+            return obtenerDuplicadosIgnorados().includes(filaExcel);
+        }
+
+        // Marca una respuesta como "ya revisado, es un duplicado real": se excluye de
+        // los conteos hasta que se reactive. No borra nada de la hoja de cálculo.
+        function ignorarPosibleDuplicado(filaExcel) {
+            let ignorados = obtenerDuplicadosIgnorados();
+            if (!ignorados.includes(filaExcel)) {
+                ignorados.push(filaExcel);
+                localStorage.setItem(CLAVE_DUPLICADOS_IGNORADOS, JSON.stringify(ignorados));
+            }
+            realizarCotejo();
+            renderizarTodo();
+        }
+
+        function reactivarPosibleDuplicado(filaExcel) {
+            let ignorados = obtenerDuplicadosIgnorados().filter(f => f !== filaExcel);
+            localStorage.setItem(CLAVE_DUPLICADOS_IGNORADOS, JSON.stringify(ignorados));
+            realizarCotejo();
+            renderizarTodo();
+        }
+
         function generarResumenFamilia(integrantes) {
             const esConfirmado = estado => estado.toLowerCase() === 'sí' || estado.toLowerCase() === 'si';
             const confirmados = integrantes.filter(i => esConfirmado(i.estado)).length;

@@ -111,3 +111,30 @@
                 contenedor.innerHTML += `<div class="ficha-grid">${invitadosIndividuales.map(inv => generarFichaInvitado(inv)).join('')}</div>`;
             }
         }
+
+        // --- ALERTA DE POSIBLES DUPLICADOS (ver detección en app.js/realizarCotejo) ---
+        function renderizarAlertaDuplicados() {
+            const contenedor = document.getElementById('alerta-duplicados-contenedor');
+            if (!contenedor) return;
+
+            if (!posiblesDuplicados || posiblesDuplicados.length === 0) {
+                contenedor.innerHTML = '';
+                return;
+            }
+
+            contenedor.innerHTML = posiblesDuplicados.map(par => {
+                let botonesIgnorar = [par.origen, par.coincideCon]
+                    .filter(inv => inv.enListaOficial === false)
+                    .map(inv => `<button class="btn" onclick="ignorarPosibleDuplicado(${JSON.stringify(inv.filaExcel)})">Ignorar respuesta de "${inv.nombreFormulario}"</button>`)
+                    .join(' ');
+
+                return `
+                    <div class="alerta-duplicado">
+                        <strong>⚠️ Posible duplicado:</strong>
+                        "${par.origen.nombre}" y "${par.coincideCon.nombre}" respondieron por separado, pero uno mencionó
+                        al otro como acompañante — podrían ser las mismas 2 personas contadas dos veces.
+                        <div style="margin-top:8px;">${botonesIgnorar}</div>
+                    </div>
+                `;
+            }).join('');
+        }
