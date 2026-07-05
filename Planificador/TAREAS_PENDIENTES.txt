@@ -1,6 +1,6 @@
 TAREAS PENDIENTES - Panel de Boda (Planificador)
 ==================================================
-Última actualización: 2026-07-04
+Última actualización: 2026-07-05
 
 Este archivo resume lo que falta por construir o decidir en el dashboard,
 para retomarlo más adelante sin perder el contexto de las decisiones ya
@@ -95,12 +95,34 @@ BUG MENOR DETECTADO (no corregido, quedó fuera de alcance)
   todavía, pero es código muerto/confuso que vale la pena limpiar
   cuando se retome este archivo.
 
-INDEX.HTML (raíz del repo)
+INDEX.HTML (raíz del repo) - RSVP corregido el 2026-07-05
 --------------------------------------------------
-No se tocó a propósito: contiene datos sensibles que no se pueden
-perder. Quedó pendiente evaluar más adelante si conviene una limpieza
-o una redirección hacia el dashboard nuevo, igual que se hizo con
-Dashboard_novios.html.
+Se revisó y corrigió el flujo de confirmación de asistencia (RSVP):
+- El fetch al Apps Script usaba mode:'no-cors', por lo que el
+  formulario siempre mostraba "¡Muchas gracias!" aunque el backend
+  rechazara el envío por duplicado o fallara. Se corrigió leyendo la
+  respuesta real (Content-Type text/plain para evitar el preflight
+  que Apps Script no responde) y distinguiendo success/duplicado/error.
+- El Apps Script (doPost, no vive en este repo) se actualizó aparte
+  para sanitizar contra inyección de fórmulas y corregir el cálculo
+  de rango del chequeo de duplicados. Ya deployado y probado en vivo:
+  un segundo envío con el mismo nombre ahora es rechazado en vez de
+  aceptado como si fuera exitoso.
+- Se limpió un espacio de más en el link del álbum de fotos.
+
+Pendiente, detectado pero no corregido (bajo impacto):
+- El control de duplicados es solo por nombre (sin email/RUT u otro
+  identificador): dos invitados reales con el mismo nombre y apellido
+  colisionarían (el segundo sería rechazado como si fuera repetido).
+- El contador regresivo sigue corriendo (setInterval) después de la
+  fecha del evento, repitiendo el mismo mensaje cada segundo - no
+  rompe nada, solo es innecesario.
+- No hay límite de envíos (rate limiting) en el formulario público.
+
+Se sigue sin tocar el resto del archivo (detalles bancarios, mapa,
+álbum, "próximamente" en la sección de mesas) - evaluar más adelante
+si conviene una limpieza o una redirección hacia el dashboard nuevo
+para esa sección, igual que se hizo con Dashboard_novios.html.
 
 NOTA OPERATIVA: GitHub Pages se queda "pegado"
 --------------------------------------------------
