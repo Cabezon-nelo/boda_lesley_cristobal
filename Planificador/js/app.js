@@ -1,5 +1,5 @@
         // --- CONFIGURACIÓN Y VARIABLES GLOBALES ---
-        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbzGuFMSYs5zF-xLZ0ADeDxjhW5Ay0jMPH8e6FRil5fX59uJC_yPYx_b2alyg3rCX0bSIw/exec";
+        const URL_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbw1PfF1Qc5IUjD5HvdjTrFb4dEWeYGZcZRPFHl-kpgJxEGwUIPCa46KAyTF51op1_ol3w/exec";
 
         let listaOficialNombres = [];
         let respuestasInvitados = [];
