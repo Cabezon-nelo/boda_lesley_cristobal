@@ -291,6 +291,14 @@
         .acompanante-item { background-color: #fbfbfa; padding: 20px; border: 1px solid #eae6dc; margin-bottom: 15px; position: relative; }
         .btn-eliminar { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #cc0000; cursor: pointer; font-size: 12px; }
 
+        .mesa-buscador { width: 100%; max-width: 550px; text-align: left; }
+        .mesa-resultados { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .mesa-card { background-color: #fff; border: 1px solid #eae6dc; border-left: 3px solid #bfa15f; padding: 18px 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .mesa-card-nombre { font-size: 15px; color: #444; margin-bottom: 4px; }
+        .mesa-card-mesa { font-family: 'Playfair Display', serif; font-size: 26px; color: #222; margin-bottom: 10px; }
+        .mesa-card-companeros { font-size: 12px; line-height: 1.7; color: #777; }
+        .mesa-vacio { text-align: center; font-size: 14px; color: #777; padding: 20px; border: 1px dashed #bfa15f; background-color: #fcfaf5; }
+
         @media (max-width: 768px) {
             .nav-links { gap: 12px; padding: 0 10px; }
             .nav-links a { font-size: 11px; letter-spacing: 1px; }
@@ -382,9 +390,10 @@
     <!-- PÁGINA: MESAS -->
     <section id="mesas" class="page-section">
         <h2 class="section-title">Encuentra tu mesa</h2>
-        <div class="card-proximamente">
-            <div class="icon-large">🍽️</div>
-            <p class="details-text">La distribución de las mesas se está organizando con mucho cariño.<br>Esta sección estará habilitada <strong>próximamente</strong>.</p>
+        <p class="details-text">Escribe tu nombre o apellido para saber en qué mesa te esperamos.</p>
+        <div class="mesa-buscador">
+            <input type="text" id="mesaBusqueda" placeholder="Ej: Cristóbal, Crespo..." autocomplete="off" oninput="buscarMesa()">
+            <div id="mesaResultados" class="mesa-resultados" aria-live="polite"></div>
         </div>
     </section>
 
@@ -480,6 +489,65 @@
             
             // 5. Volver arriba
             window.scrollTo(0, 0);
+        }
+
+        const MESAS = [
+            { mesa: "Mesa de los Novios", invitados: ["Cristóbal Olmedo", "Lesley Alarcón", "Isabel Crespo", "María Silva", "Krishna Alarcón", "Andrés Alarcón", "Gerson Olmedo", "José Crespo", "Adriana Avendaño", "Carmen Beltrán"] },
+            { mesa: "Mesa 2", invitados: ["Pastor José Donoso", "Pastora Iris Jiménez", "Pastor Felisomo Muñoz", "Pastora Mireya", "Pastor Froilan", "Pastora Jacqueline", "Nelson Caroca", "Gladys Morales", "Jeremías Caroca"] },
+            { mesa: "Mesa 3", invitados: ["Genoveva Crespo", "Marcelo Crespo", "Juan Carlos Crespo", "Silvia Rebeco", "María Ibania Crespo", "Carlos Crespo Rebeco", "Karina Inostroza", "Mateo Crespo", "Noam Crespo"] },
+            { mesa: "Mesa 4", invitados: ["Eric Vidal", "Consuelo Romero", "Bárbara Vidal", "Mauro Vergara", "Jorge Luis Velasquez", "Sonia Vidal", "María Cornejo", "Carolina Poblete", "Emanuel Bustamante", "Josué Bustamante"] },
+            { mesa: "Mesa 5", invitados: ["Gabriel Crespo", "Claudia Hernández", "Emilia Crespo", "Luis Crespo", "Catalina Muñoz", "Carolina Crespo", "Cristian Meza", "Bastian Meza", "Cristóbal Meza", "Álvaro Meza"] },
+            { mesa: "Mesa 6", invitados: ["Teresa Fuentes", "Cristian Valdes", "Juan Carlos Espinosa", "Magdalena Espinoza", "Sofía Valdés", "Eduardo Rojas", "Vanessa Leyton", "Vania Rojas", "Héctor Leyton", "Erminia Ramírez"] },
+            { mesa: "Mesa 7", invitados: ["Magaly Crespo", "Benjamín Crespo", "Ury Saldaña", "Juan Pablo Mellado", "Pablito Mellado", "Mey Saldaña", "Osvaldo Rojas", "Vicente Rojas", "Alonso Rojas", "Constanza Ramírez"] },
+            { mesa: "Mesa 8", invitados: ["Loreto Salas", "Gladiz Madrid", "Víctor Guajardo", "Rafaela Guajardo", "Ana Escobar", "Isaac Olmedo", "Glendys Castillo"] },
+            { mesa: "Mesa 9", invitados: ["Eugenio Crespo", "Isidora Ortiz", "Jeanette Candia", "Eliseo Crespo", "Gladys Yañez", "Rodrigo Crespo", "Guillermina Rojas", "Raquel Crespo", "Cristopher Crespo"] },
+            { mesa: "Mesa 10", invitados: ["María Leyton", "Andrea Saavedra", "Jhonatan Hernández", "Alejandra Vilas", "Juan Rojas", "José Latorre", "Carla Rebeco", "Alicia Latorre"] }
+        ];
+
+        function normalizarTexto(texto) {
+            return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+        }
+
+        function buscarMesa() {
+            const contenedor = document.getElementById('mesaResultados');
+            const palabras = normalizarTexto(document.getElementById('mesaBusqueda').value).split(/\s+/).filter(Boolean);
+            contenedor.innerHTML = '';
+            if (palabras.join('').length < 2) return;
+
+            const coincidencias = [];
+            MESAS.forEach(grupo => {
+                grupo.invitados.forEach(nombre => {
+                    const normalizado = normalizarTexto(nombre);
+                    if (palabras.every(p => normalizado.includes(p))) coincidencias.push({ nombre, grupo });
+                });
+            });
+
+            if (coincidencias.length === 0) {
+                const vacio = document.createElement('div');
+                vacio.className = 'mesa-vacio';
+                vacio.textContent = 'No encontramos ese nombre. Prueba con otro apellido o escríbenos si crees que es un error.';
+                contenedor.appendChild(vacio);
+                return;
+            }
+
+            coincidencias.forEach(({ nombre, grupo }) => {
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'mesa-card';
+                const companeros = grupo.invitados.filter(n => n !== nombre).join(' · ');
+
+                const elNombre = document.createElement('div');
+                elNombre.className = 'mesa-card-nombre';
+                elNombre.textContent = nombre;
+                const elMesa = document.createElement('div');
+                elMesa.className = 'mesa-card-mesa';
+                elMesa.textContent = grupo.mesa;
+                const elCompaneros = document.createElement('div');
+                elCompaneros.className = 'mesa-card-companeros';
+                elCompaneros.textContent = 'Te acompañan: ' + companeros;
+
+                tarjeta.append(elNombre, elMesa, elCompaneros);
+                contenedor.appendChild(tarjeta);
+            });
         }
 
         // --- LÓGICA DEL FORMULARIO Y GOOGLE SHEETS ---
