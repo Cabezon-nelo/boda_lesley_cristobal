@@ -1,0 +1,16 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; cursor: none; }
+body {
+    background: radial-gradient(ellipse at 50% 45%, #22332a 0%, #0f1912 55%, #050806 100%);
+    color: #ecd9a6;
+    font-family: 'Playfair Display', serif;
+}
+#escena, #lienzo { position: fixed; inset: 0; width: 100%; height: 100%; }
+[hidden] { display: none !important; }
+.nombres { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; opacity: 0; transition: opacity 2.4s ease; pointer-events: none; }
+.nombres.visible, body[data-modo="petalos"] #nombres { opacity: 1; }
+.nombres-texto { font-family: 'Great Vibes', cursive; font-size: 13vw; line-height: 1.1; color: #e9cf8a; text-shadow: 0 0 40px rgba(233,207,138,0.45), 0 4px 24px rgba(0,0,0,0.5); }
+.nombres-texto span { font-size: 0.55em; margin: 0 0.15em; }
+.fecha { margin-top: 2.4vw; font-size: 2.2vw; letter-spacing: 0.5em; text-transform: uppercase; color: #cdbb85; }
+.aviso { margin-top: 3vw; font-style: italic; font-size: 1.5vw; color: #8f8765; }
+.pie { position: fixed; left: 0; right: 0; bottom: 3.2vh; text-align: center; font-size: 1.8vw; letter-spacing: 0.5em; text-transform: uppercase; color: #cdbb85; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }

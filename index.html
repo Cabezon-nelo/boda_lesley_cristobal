@@ -38,7 +38,7 @@
 
     <meta name="theme-color" content="#FCFAF6">
 
-    <link rel="stylesheet" href="css/estilos.css?v=20261016">
+    <link rel="stylesheet" href="css/estilos.css?v=20261017">
 </head>
 <body>
 
@@ -134,52 +134,20 @@
 
     <section id="asistencia" class="page-section">
         <h2 class="section-title">Confirmar Asistencia</h2>
-        <div class="form-container">
-            <p style="text-align: center; font-size: 12px; color: #8a8273; font-style: italic; margin-bottom: 30px;">Plazo máximo de confirmación hasta el 15 de agosto 2026</p>
-
-            <form id="rsvpForm">
-                <div class="form-group">
-                    <label for="nombreInvitado">Nombre de invitado</label>
-                    <input type="text" id="nombreInvitado" name="nombreInvitado" required placeholder="Nombre y Apellido">
-                </div>
-
-                <div class="form-group">
-                    <label>¿Asistirás?</label>
-                    <div class="radio-group">
-                        <label class="radio-item"><input type="radio" name="asistencia" value="si" required onchange="toggleDetallesTitular()"> Acepto con gusto la invitación.</label>
-                        <label class="radio-item"><input type="radio" name="asistencia" value="no" onchange="toggleDetallesTitular()"> Lamentablemente no podré asistir.</label>
-                    </div>
-                </div>
-
-                <div id="detallesTitular" class="hidden">
-                    <div class="form-group">
-                        <label>Menú</label>
-                        <div class="radio-group">
-                            <label class="radio-item"><input type="radio" name="menuTitular" value="tradicional" onchange="toggleRestriccion('Titular')"> Tradicional</label>
-                            <label class="radio-item"><input type="radio" name="menuTitular" value="vegetariano" onchange="toggleRestriccion('Titular')"> Vegetariano</label>
-                            <label class="radio-item"><input type="radio" name="menuTitular" value="restriccion" onchange="toggleRestriccion('Titular')"> Restricción alimentaria</label>
-                        </div>
-                        <div id="restriccionTitularContainer" class="restriccion-input hidden">
-                            <input type="text" id="restriccionTitular" name="restriccionTitular" placeholder="Indique qué alimentos no puede consumir">
-                        </div>
-                    </div>
-
-                    <div style="border-top: 1px dashed #d1c9b8; margin: 30px 0; padding-top: 20px;">
-                        <p style="font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; margin-bottom: 15px;">Si fuiste invitado con acompañante o familia, ingresa:</p>
-                        <div id="contenedorAcompanantes"></div>
-                        <button type="button" class="btn-secondary" onclick="agregarAcompanante()">+ Agregar acompañante / familiar</button>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 20px;">Enviar Confirmación</button>
-            </form>
+        <div class="gracias-card">
+            <div class="mesa-ornamento">◆</div>
+            <p>El plazo para confirmar asistencia ya finalizó.</p>
+            <p>Gracias por tu tiempo y por responder a nuestra invitación; cada confirmación nos ayudó a preparar este día con muchísimo cariño.</p>
+            <p class="gracias-cierre">A quienes confirmaron, ¡nos vemos en la boda!</p>
         </div>
     </section>
 
-    <script src="js/cuenta-regresiva.js?v=20261016"></script>
-    <script src="js/navegacion.js?v=20261016"></script>
-    <script src="js/mesas-datos.js?v=20261016"></script>
-    <script src="js/mesas.js?v=20261016"></script>
-    <script src="js/rsvp.js?v=20261016"></script>
+    <script src="js/fecha-boda.js?v=20261017"></script>
+    <script src="js/cuenta-regresiva.js?v=20261017"></script>
+    <script src="js/navegacion.js?v=20261017"></script>
+    <script src="js/mesas-datos.js?v=20261017"></script>
+    <script src="js/mesas.js?v=20261017"></script>
+    <script src="js/petalos.js?v=20261017"></script>
+    <script src="js/sorpresa.js?v=20261017"></script>
 </body>
 </html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Pantalla Lesley & Cristóbal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="css/pantalla.css?v=20261017">
+</head>
+<body data-modo="petalos">
+    <main id="espera" class="nombres visible">
+        <div class="nombres-texto">Lesley <span>y</span> Cristóbal</div>
+        <div class="fecha">17 . Octubre . 2026</div>
+        <div class="aviso">La pantalla se activará el día de la boda</div>
+    </main>
+
+    <div id="escena" hidden>
+        <canvas id="lienzo"></canvas>
+        <div class="nombres" id="nombres">
+            <div class="nombres-texto">Lesley <span>y</span> Cristóbal</div>
+        </div>
+        <div class="pie">17 . Octubre . 2026</div>
+    </div>
+
+    <script src="js/fecha-boda.js?v=20261017"></script>
+    <script src="js/vendor/three.min.js?v=r128"></script>
+    <script src="js/pantalla.js?v=20261017"></script>
+</body>
+</html>
