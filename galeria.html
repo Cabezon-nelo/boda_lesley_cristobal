@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>Galería Lesley & Cristóbal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="css/galeria.css?v=20261017">
+</head>
+<body>
+    <div id="fondo" class="fondo"></div>
+    <canvas id="petalos"></canvas>
+    <div id="escenario" class="escenario"></div>
+    <div class="marca">Lesley <span>y</span> Cristóbal</div>
+    <div id="aviso" class="aviso"></div>
+
+    <nav id="barra" class="barra" hidden>
+        <button type="button" data-accion="agregar">Agregar</button>
+        <button type="button" data-accion="anterior">Anterior</button>
+        <button type="button" data-accion="pausa" id="botonPausa">Pausar</button>
+        <button type="button" data-accion="siguiente">Siguiente</button>
+        <button type="button" data-accion="sonido" id="botonSonido">Sonido: sí</button>
+        <button type="button" data-accion="mezclar">Mezclar</button>
+        <button type="button" data-accion="pantalla">Pantalla completa</button>
+    </nav>
+
+    <section id="panel" class="panel">
+        <div class="panel-tarjeta">
+            <h1>Galería de la boda</h1>
+            <div class="adorno">◆</div>
+            <p class="panel-texto">Suelta aquí las fotos y videos, o la carpeta completa, para proyectarlos.</p>
+            <div id="zona" class="zona">
+                <span>Arrastra tus archivos aquí</span>
+                <div class="zona-botones">
+                    <label class="boton">Elegir archivos<input id="entradaArchivos" type="file" accept="image/*,video/*" multiple hidden></label>
+                    <label class="boton">Elegir carpeta<input id="entradaCarpeta" type="file" webkitdirectory hidden></label>
+                </div>
+            </div>
+            <p id="estado" class="estado"></p>
+            <div class="panel-opciones">
+                <label>Orden
+                    <select id="orden">
+                        <option value="cronologico">Cronológico</option>
+                        <option value="aleatorio">Aleatorio</option>
+                    </select>
+                </label>
+                <label>Cada foto
+                    <select id="duracion">
+                        <option value="6">6 s</option>
+                        <option value="8" selected>8 s</option>
+                        <option value="12">12 s</option>
+                    </select>
+                </label>
+            </div>
+            <div class="panel-acciones">
+                <button type="button" id="iniciar" class="boton boton-principal" disabled>Iniciar proyección</button>
+                <button type="button" id="vaciar" class="boton boton-suave" hidden>Vaciar guardados</button>
+            </div>
+            <p class="panel-ayuda">Teclas: espacio pausa · ← → cambian · M sonido · F pantalla completa · H panel · A agregar</p>
+        </div>
+    </section>
+
+    <script src="js/petalos.js?v=20261017"></script>
+    <script src="js/galeria.js?v=20261017"></script>
+</body>
+</html>
