@@ -293,18 +293,30 @@
 
         .mesa-buscador { width: 100%; max-width: 1000px; }
         .mesa-buscador input[type="text"] { display: block; max-width: 550px; margin: 0 auto; }
-        .mesa-grilla { margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 220px)); justify-content: center; gap: 28px 24px; }
-        .mesa-grilla.pocas { grid-template-columns: repeat(auto-fit, minmax(240px, 300px)); }
-        .mesa-item { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .mesa-flip { display: block; width: 100%; aspect-ratio: 700 / 987; padding: 0; border: 0; background: none; cursor: pointer; perspective: 1200px; -webkit-tap-highlight-color: transparent; }
-        .mesa-flip-inner { display: block; position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.9s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        .mesa-ornamento { display: flex; align-items: center; justify-content: center; gap: 14px; color: #bfa15f; font-size: 9px; margin: -12px 0 24px 0; }
+        .mesa-ornamento::before, .mesa-ornamento::after { content: ''; width: 70px; height: 1px; background: linear-gradient(to right, transparent, #bfa15f); }
+        .mesa-ornamento::after { transform: scaleX(-1); }
+        .mesa-grilla { margin: 40px auto 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); gap: 44px 30px; max-width: 1080px; }
+        .mesa-grilla.pocas { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; }
+        .mesa-grilla.pocas .mesa-item { width: min(300px, 78vw); }
+        .mesa-item { display: flex; flex-direction: column; align-items: center; gap: 16px; transition: transform 0.4s ease; animation: mesaEntra 0.7s ease backwards; animation-delay: calc(var(--i, 0) * 70ms); }
+        .mesa-item:hover { transform: translateY(-8px); }
+        @keyframes mesaEntra { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .mesa-flip { display: block; width: 100%; aspect-ratio: 700 / 987; padding: 0; border: 0; background: none; cursor: pointer; perspective: 1400px; -webkit-tap-highlight-color: transparent; }
+        .mesa-flip-inner { display: block; position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 1s cubic-bezier(0.45, 0.05, 0.25, 1); }
         .mesa-flip.volteada .mesa-flip-inner { transform: rotateY(180deg); }
-        .mesa-cara { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); backface-visibility: hidden; -webkit-backface-visibility: hidden; object-fit: cover; }
-        .mesa-dorso { transform: rotateY(180deg); }
-        .mesa-hallado { font-size: 13px; line-height: 1.6; color: #666; text-align: center; max-width: 280px; }
-        .mesa-hallado strong { color: #222; }
+        .mesa-cara { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(60,45,10,0.08), 0 14px 32px rgba(60,45,10,0.14); backface-visibility: hidden; -webkit-backface-visibility: hidden; object-fit: cover; }
+        .mesa-item:hover .mesa-cara { box-shadow: 0 4px 8px rgba(60,45,10,0.1), 0 22px 44px rgba(60,45,10,0.2); }
+        .mesa-dorso { transform: rotateY(180deg); container-type: inline-size; background-size: cover; background-position: center; box-sizing: border-box; padding: 11% 9% 24% 21%; display: flex; flex-direction: column; align-items: center; color: #c49640; }
+        .mesa-dorso-titulo { font-family: 'Playfair Display', serif; font-size: 15cqw; letter-spacing: 0.02em; line-height: 1; margin-bottom: 11cqw; text-shadow: 0 1px 1px rgba(255,255,255,0.8); }
+        .mesa-dorso-lista { list-style: none; margin: 0; padding: 0; font-family: 'Playfair Display', serif; font-size: 6.6cqw; line-height: 1.5; }
+        .mesa-dorso-lista li.destacado { font-weight: 600; color: #a87a1f; }
+        .mesa-hallado { font-family: 'Playfair Display', serif; font-style: italic; font-size: 14px; line-height: 1.6; color: #6b5a30; text-align: center; max-width: 280px; }
+        .mesa-hallado strong { font-style: normal; color: #222; }
         .mesa-vacio { text-align: center; font-size: 14px; color: #777; padding: 20px; border: 1px dashed #bfa15f; background-color: #fcfaf5; max-width: 550px; margin: 30px auto 0 auto; }
-        @media (prefers-reduced-motion: reduce) { .mesa-flip-inner { transition: none; } }
+        @media (max-width: 1000px) { .mesa-grilla { grid-template-columns: repeat(3, 1fr); max-width: 640px; } }
+        @media (max-width: 560px) { .mesa-grilla { grid-template-columns: repeat(2, 1fr); gap: 28px 16px; } }
+        @media (prefers-reduced-motion: reduce) { .mesa-flip-inner, .mesa-item { transition: none; animation: none; } }
 
         @media (max-width: 768px) {
             .nav-links { gap: 12px; padding: 0 10px; }
@@ -397,6 +409,7 @@
     <!-- PÁGINA: MESAS -->
     <section id="mesas" class="page-section">
         <h2 class="section-title">Encuentra tu mesa</h2>
+        <div class="mesa-ornamento">◆</div>
         <p class="details-text">Escribe tu nombre o apellido para encontrar tu mesa. Toca la tarjeta para darle la vuelta y ver quiénes te acompañan.</p>
         <div class="mesa-buscador">
             <input type="text" id="mesaBusqueda" placeholder="Ej: Cristóbal, Crespo..." autocomplete="off" oninput="buscarMesa()">
@@ -515,9 +528,10 @@
             return texto.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
         }
 
-        function crearTarjetaMesa(grupo, encontrados) {
+        function crearTarjetaMesa(grupo, encontrados, indice) {
             const item = document.createElement('div');
             item.className = 'mesa-item';
+            item.style.setProperty('--i', indice);
 
             const boton = document.createElement('button');
             boton.type = 'button';
@@ -527,15 +541,31 @@
 
             const interior = document.createElement('span');
             interior.className = 'mesa-flip-inner';
-            ['frente', 'dorso'].forEach(cara => {
-                const img = document.createElement('img');
-                img.className = 'mesa-cara mesa-' + cara;
-                img.src = 'assets/mesas/mesa-' + grupo.numero + '-' + cara + '.jpg';
-                img.alt = cara === 'frente' ? 'Tarjeta de la mesa ' + grupo.numero : 'Invitados de la mesa ' + grupo.numero + ': ' + grupo.invitados.join(', ');
-                img.loading = 'lazy';
-                img.draggable = false;
-                interior.appendChild(img);
+
+            const frente = document.createElement('img');
+            frente.className = 'mesa-cara mesa-frente';
+            frente.src = 'assets/mesas/mesa-' + grupo.numero + '-frente.jpg';
+            frente.alt = 'Tarjeta de la mesa ' + grupo.numero;
+            frente.loading = 'lazy';
+            frente.draggable = false;
+
+            const dorso = document.createElement('span');
+            dorso.className = 'mesa-cara mesa-dorso';
+            dorso.style.backgroundImage = "url('assets/mesas/mesa-dorso-base.jpg')";
+            const titulo = document.createElement('span');
+            titulo.className = 'mesa-dorso-titulo';
+            titulo.textContent = 'MESA ' + grupo.numero;
+            const lista = document.createElement('ul');
+            lista.className = 'mesa-dorso-lista';
+            grupo.invitados.forEach(nombre => {
+                const li = document.createElement('li');
+                li.textContent = nombre;
+                if (encontrados.includes(nombre)) li.className = 'destacado';
+                lista.appendChild(li);
             });
+            dorso.append(titulo, lista);
+
+            interior.append(frente, dorso);
             boton.appendChild(interior);
             item.appendChild(boton);
 
@@ -576,7 +606,7 @@
                 contenedor.parentNode.appendChild(vacio);
                 return;
             }
-            resultados.forEach(({ grupo, encontrados }) => contenedor.appendChild(crearTarjetaMesa(grupo, encontrados)));
+            resultados.forEach(({ grupo, encontrados }, i) => contenedor.appendChild(crearTarjetaMesa(grupo, encontrados, i)));
         }
 
         buscarMesa();
