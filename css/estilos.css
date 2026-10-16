@@ -207,34 +207,20 @@ a { text-decoration: none; color: inherit; }
     display: block;
 }
 
-.form-container {
-    background-color: #fff; padding: 50px 40px; border-radius: 4px;
+.gracias-card {
+    background-color: #fff; padding: 56px 40px; border-radius: 4px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-width: 550px; width: 100%;
-    border: 1px solid #eae6dc; text-align: left;
+    border: 1px solid #eae6dc; text-align: center; box-sizing: border-box;
 }
-.form-group { margin-bottom: 25px; }
-label {
-    display: block; font-weight: 600; color: #666; margin-bottom: 10px;
-    font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
-}
+.gracias-card .mesa-ornamento { margin: 0 0 22px 0; }
+.gracias-card p { font-size: 15px; line-height: 1.9; color: #555; margin: 0 0 18px 0; }
+.gracias-card .gracias-cierre { font-family: 'Playfair Display', serif; font-style: italic; font-size: 20px; color: #9c7a2c; margin: 28px 0 0 0; }
 input[type="text"] {
     width: 100%; padding: 12px; border: 1px solid #dcd7cc; border-radius: 2px;
     font-size: 15px; box-sizing: border-box; font-family: 'Montserrat', sans-serif;
     background-color: #faf9f6;
 }
 input[type="text"]:focus { outline: none; border-color: #bfa15f; background-color: #fff; }
-.radio-group { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
-.radio-item { display: flex; align-items: center; font-size: 14px; color: #444; cursor: pointer; }
-.radio-item input[type="radio"] { margin-right: 12px; transform: scale(1.1); accent-color: #bfa15f; }
-.restriccion-input { margin-top: 10px; padding-left: 10px; border-left: 2px solid #bfa15f; }
-.btn-secondary {
-    background-color: transparent; border: 1px dashed #bfa15f; color: #bfa15f;
-    padding: 10px 15px; font-size: 12px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 1px; width: 100%; margin-top: 10px; cursor: pointer;
-}
-.hidden { display: none; }
-.acompanante-item { background-color: #fbfbfa; padding: 20px; border: 1px solid #eae6dc; margin-bottom: 15px; position: relative; }
-.btn-eliminar { position: absolute; top: 15px; right: 15px; background: none; border: none; color: #cc0000; cursor: pointer; font-size: 12px; }
 
 .mesa-buscador { width: 100%; max-width: 1000px; }
 .mesa-buscador input[type="text"] { display: block; max-width: 550px; margin: 0 auto; }
@@ -268,3 +254,15 @@ input[type="text"]:focus { outline: none; border-color: #bfa15f; background-colo
     .nav-links a { font-size: 11px; letter-spacing: 1px; }
     .hero-names { font-size: 60px; }
 }
+
+.sorpresa { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; background: radial-gradient(ellipse at center, #fffdf8 0%, #f6efe0 70%, #efe4cb 100%); cursor: pointer; transition: opacity 1.2s ease; }
+.sorpresa.saliendo { opacity: 0; pointer-events: none; }
+.sorpresa canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sorpresa-contenido { position: relative; animation: sorpresaEntra 2.2s ease 0.6s backwards; }
+.sorpresa-fecha { font-family: 'Playfair Display', serif; font-size: 16px; letter-spacing: 4px; text-transform: uppercase; color: #8a7a52; margin-bottom: 18px; }
+.sorpresa-mensaje { font-family: 'Great Vibes', cursive; font-size: clamp(54px, 13vw, 120px); line-height: 1.05; color: #bfa15f; text-shadow: 0 2px 18px rgba(191,161,95,0.35); }
+.sorpresa-nombres { font-family: 'Playfair Display', serif; font-style: italic; font-size: clamp(18px, 3.4vw, 28px); color: #6b5a30; margin-top: 22px; }
+.sorpresa-toque { position: relative; margin-top: 42px; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #a99c78; animation: sorpresaPulso 2.4s ease-in-out infinite; }
+@keyframes sorpresaEntra { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes sorpresaPulso { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sorpresa-contenido, .sorpresa-toque { animation: none; } }
